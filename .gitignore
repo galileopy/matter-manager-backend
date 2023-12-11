@@ -37,3 +37,6 @@ lerna-debug.log*
 
 # Variables
 .env
+
+# Data
+dump.sql
