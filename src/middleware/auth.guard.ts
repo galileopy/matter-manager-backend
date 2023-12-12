@@ -1,16 +1,23 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { Roles, Unauthenticated } from 'src/decorators/auth.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private reflector: Reflector,
+  ) {}
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
@@ -18,6 +25,15 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isUnauthenticated = this.reflector.get(
+      Unauthenticated,
+      context.getHandler(),
+    );
+
+    if (isUnauthenticated) return true;
+
+    const roles = this.reflector.get(Roles, context.getHandler());
+
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
@@ -35,6 +51,11 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    if (roles && !roles.includes(request['user'].role)) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
+    // ------------------ REFRESH TOKEN ------------------------
     const refreshToken = jwt.sign(
       {
         ...request['user'],

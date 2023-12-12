@@ -6,13 +6,13 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  Response,
 } from '@nestjs/common';
 import { UsersRepository } from '../users/users.repository';
 
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './auth.dto';
+import { Unauthenticated } from 'src/decorators/auth.decorator';
 
 @Controller('auth')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,6 +24,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @Unauthenticated()
   async login(@Body() data: LoginDto): Promise<string> {
     const user = await this.userRepository.findUserByUsername(data.username);
     if (!user) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
