@@ -128,7 +128,6 @@ export class PdfGenerationService {
 
     // done!
     doc.end();
-    console.log('test test test');
   }
 }
 

@@ -4,8 +4,8 @@ import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { UsersModule } from './modules/users/users.module';
-import { HealthCheckModule } from './modules/health-check/health-check.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthCheckModule } from './modules/health-check/health-check.module';
 
 @Module({
   imports: [
@@ -15,7 +15,9 @@ import { AuthModule } from './modules/auth/auth.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend/browser'),
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     PrismaClient,
   ],
   controllers: [],

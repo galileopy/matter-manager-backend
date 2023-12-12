@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Response,
 } from '@nestjs/common';
 import { UsersRepository } from '../users/users.repository';
 
@@ -28,7 +29,12 @@ export class AuthController {
     if (!user) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 
     const token = jwt.sign(
-      { id: user.id, role: user.role, loggedInAt: new Date() },
+      {
+        id: user.id,
+        role: user.role,
+        // One hour from login
+        iat: (new Date().getTime() + 60 * 60 * 1000) / 1000,
+      },
       this.configService.get('JWT_SECRET'),
     );
 
