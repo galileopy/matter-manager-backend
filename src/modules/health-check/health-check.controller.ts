@@ -3,6 +3,7 @@ import { Controller, Get, Req } from '@nestjs/common';
 import { PdfGenerationService } from 'src/services/pdf-generator.service';
 import { Roles, Unauthenticated } from 'src/decorators/auth.decorator';
 import { Role } from '@prisma/client';
+
 @Controller('health-check')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class HealthCheckController {

@@ -36,7 +36,6 @@ async function runEtl() {
           role: user.userTypeID === 1 ? 'USER' : 'ADMIN',
           firstName: user.EmployeeFirstName ?? user.windowslogin,
           lastName: user.EmployeeLastName ?? user.windowslogin,
-          isActive: user.active,
           abbreviation: user.threeLetterAbbreviation.toUpperCase(),
         },
       });

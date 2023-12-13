@@ -1,13 +1,29 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AuthGuard } from './middleware/auth.guard';
-import { ConfigService } from '@nestjs/config';
+import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  global['deleted_users'] = new Set();
   const app = await NestFactory.create(AppModule);
+
+  // const cacheManager = app.useGlobalPipes(CACHE_MANAGER);
   app.enableCors();
-  app.useGlobalGuards(
-    new AuthGuard(app.get(ConfigService), app.get(Reflector)),
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => {
+        return new UnprocessableEntityException({
+          statusCode: 422,
+          error: 'Unprocessable Entity',
+          message: errors.reduce(
+            (acc, e) => ({
+              ...acc,
+              [e.property]: Object.values(e.constraints),
+            }),
+            {},
+          ),
+        });
+      },
+    }),
   );
   await app.listen(3000);
 }

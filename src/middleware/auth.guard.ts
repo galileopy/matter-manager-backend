@@ -25,6 +25,7 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // ------------------- Handle Decorators ------------------------ //
     const isUnauthenticated = this.reflector.get(
       Unauthenticated,
       context.getHandler(),
@@ -33,6 +34,8 @@ export class AuthGuard implements CanActivate {
     if (isUnauthenticated) return true;
 
     const roles = this.reflector.get(Roles, context.getHandler());
+
+    // --------------------  Extract Token -------------------------- //
 
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
@@ -51,11 +54,18 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    if (global['deleted_users'].has(request['user'].id)) {
+      global['deleted_users'].delete(request['user'].id);
+      throw new UnauthorizedException();
+    }
+
+    // --------------  VALIDATION -------------------- //
+
     if (roles && !roles.includes(request['user'].role)) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
 
-    // ------------------ REFRESH TOKEN ------------------------
+    // ------------------ REFRESH TOKEN ------------------------ //
     const refreshToken = jwt.sign(
       {
         ...request['user'],
@@ -64,7 +74,7 @@ export class AuthGuard implements CanActivate {
       this.configService.get('JWT_SECRET'),
     );
 
-    response.setHeader('refresh-token', refreshToken);
+    response.setHeader('auth-token', refreshToken);
     return true;
   }
 }

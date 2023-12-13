@@ -19,8 +19,8 @@ model User {
   role         Role               @default(USER)
   firstName    String
   lastName     String 
-  isActive     Boolean            @default(true)
   abbreviation String             @unique
+  deletedAt    DateTime?
 }
 
 enum Role {

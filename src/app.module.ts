@@ -6,6 +6,9 @@ import { PrismaClient } from '@prisma/client';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthCheckModule } from './modules/health-check/health-check.module';
+import { ServicesModule } from './services/services.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './middleware/auth.guard';
 
 @Module({
   imports: [
@@ -19,8 +22,14 @@ import { HealthCheckModule } from './modules/health-check/health-check.module';
       isGlobal: true,
     }),
     PrismaClient,
+    ServicesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}
