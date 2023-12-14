@@ -5,8 +5,7 @@ import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   global['deleted_users'] = new Set();
   const app = await NestFactory.create(AppModule);
-
-  // const cacheManager = app.useGlobalPipes(CACHE_MANAGER);
+  app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
