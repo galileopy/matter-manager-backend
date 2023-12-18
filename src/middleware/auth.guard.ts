@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // ------------------- Handle Decorators ------------------------ //
+    // ------------------- SKIP ------------------------ //
     const isUnauthenticated = this.reflector.get(
       Unauthenticated,
       context.getHandler(),
@@ -33,33 +33,41 @@ export class AuthGuard implements CanActivate {
 
     if (isUnauthenticated) return true;
 
-    const roles = this.reflector.get(Roles, context.getHandler());
-
     // --------------------  Extract Token -------------------------- //
 
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
-
-    const token = this.extractTokenFromHeader(request);
-    if (!token) throw new UnauthorizedException();
+    let request, response, token;
 
     try {
-      request['user'] = await jwt.decode(
+      request = context.switchToHttp().getRequest();
+      response = context.switchToHttp().getResponse();
+
+      token = this.extractTokenFromHeader(request);
+      if (!token) throw Error();
+
+      const userData = (await jwt.decode(
         token,
         this.configService.get('JWT_SECRET'),
-      );
+      )) as any;
 
-      if (request['user'].iat < new Date().getTime() / 1000) throw Error();
+      if (!userData) throw Error();
+
+      if (global['deleted_users'].has(userData.id)) {
+        global['deleted_users'].delete(userData.id);
+        throw new UnauthorizedException();
+      }
+
+      request['user'] = userData;
     } catch (e) {
       throw new UnauthorizedException();
     }
 
-    if (global['deleted_users'].has(request['user'].id)) {
-      global['deleted_users'].delete(request['user'].id);
-      throw new UnauthorizedException();
+    // -------------------- Expired token --------------------------
+    if (request['user'].iat < new Date().getTime() / 1000) {
+      throw new jwt.TokenExpiredError('token has expired', new Date());
     }
 
-    // --------------  VALIDATION -------------------- //
+    // --------------  Authorization -------------------- //
+    const roles = this.reflector.get(Roles, context.getHandler());
 
     if (roles && !roles.includes(request['user'].role)) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -74,7 +82,7 @@ export class AuthGuard implements CanActivate {
       this.configService.get('JWT_SECRET'),
     );
 
-    response.setHeader('auth-token', refreshToken);
+    response.setHeader('x-access-token', refreshToken);
     return true;
   }
 }

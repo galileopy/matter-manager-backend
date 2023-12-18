@@ -6,7 +6,9 @@ async function bootstrap() {
   global['deleted_users'] = new Set();
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  app.enableCors();
+  app.enableCors({
+    exposedHeaders: ['x-access-token'],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors) => {

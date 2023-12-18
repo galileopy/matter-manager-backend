@@ -44,7 +44,7 @@ export class AuthController {
       },
       this.configService.get('JWT_SECRET'),
     );
-    response.setHeader('auth-token', token);
+    response.setHeader('x-access-token', token);
 
     return user;
   }
