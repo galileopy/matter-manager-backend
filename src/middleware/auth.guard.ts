@@ -63,7 +63,7 @@ export class AuthGuard implements CanActivate {
 
     // -------------------- Expired token --------------------------
     if (request['user'].iat < new Date().getTime() / 1000) {
-      throw new jwt.TokenExpiredError('token has expired', new Date());
+      throw new HttpException('TokenExpired', 419);
     }
 
     // --------------  Authorization -------------------- //
