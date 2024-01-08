@@ -27,3 +27,20 @@ enum Role {
   USER
   ADMIN
 }
+
+model Client {
+  id  String   @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  name         String             
+  suffix       String?      
+  email        String?            
+  type         ClientType         @default(NON_ASSOCIATION)
+  deletedAt    DateTime?
+}
+
+enum ClientType {
+  ASSOCIATION
+  NON_ASSOCIATION
+}
+

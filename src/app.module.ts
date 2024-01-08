@@ -9,11 +9,13 @@ import { HealthCheckModule } from './modules/health-check/health-check.module';
 import { ServicesModule } from './services/services.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './middleware/auth.guard';
+import { ClientsModule } from './modules/clients/clients.module';
 
 @Module({
   imports: [
     HealthCheckModule,
     UsersModule,
+    ClientsModule,
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend/browser'),

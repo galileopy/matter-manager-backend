@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as pg from 'pg';
 import { PrismaClient } from '@prisma/client';
 
-async function runEtl() {
+async function runEtl(): Promise<void> {
   const application = await NestFactory.createApplicationContext(AppModule);
 
   const config = application.get(ConfigService);
@@ -14,7 +14,11 @@ async function runEtl() {
   const prisma = application.get(PrismaClient);
 
   const client = new pg.Client(dumpDb);
-  client.connect();
+  await client.connect();
+
+  // -- DELETE ALL DATA --
+  await prisma.client.deleteMany();
+  await prisma.user.deleteMany();
 
   //   USERS
   const dumpUsers = (await client.query('SELECT * from "tblUsers"')).rows;
@@ -40,7 +44,31 @@ async function runEtl() {
         },
       });
     }
+    return;
+  });
+
+  // CLIENTS
+
+  const dumpClients = (await client.query('SELECT * from "tblClient"')).rows;
+
+  await prisma.$transaction(async (tx) => {
+    for (const client of dumpClients) {
+      if (!client.txtClientName) continue;
+
+      await tx.client.create({
+        data: {
+          name: client.txtClientName,
+          suffix: client.nameWithSuffixes
+            ? client.nameWithSuffixes.replace(client.txtClientName, '')
+            : undefined,
+          email: client.txtEmail,
+          type: client.clientType === 1 ? 'ASSOCIATION' : 'NON_ASSOCIATION',
+          deletedAt: !client.active ? new Date() : undefined,
+        },
+      });
+    }
+    return;
   });
 }
 
-runEtl();
+runEtl().then((_) => process.exit());
