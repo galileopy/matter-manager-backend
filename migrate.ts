@@ -6,11 +6,11 @@ import * as pg from 'pg';
 import { PrismaClient } from '@prisma/client';
 
 async function runEtl(): Promise<void> {
-  const application = await NestFactory.createApplicationContext(AppModule);
+  const clientIdMap = {};
 
+  const application = await NestFactory.createApplicationContext(AppModule);
   const config = application.get(ConfigService);
   const dumpDb = config.get<string>('DUMP_DB_URL');
-
   const prisma = application.get(PrismaClient);
 
   const client = new pg.Client(dumpDb);
@@ -55,15 +55,37 @@ async function runEtl(): Promise<void> {
     for (const client of dumpClients) {
       if (!client.txtClientName) continue;
 
-      await tx.client.create({
+      const newClient = await tx.client.create({
         data: {
           name: client.txtClientName,
           suffix: client.nameWithSuffixes
             ? client.nameWithSuffixes.replace(client.txtClientName, '')
             : undefined,
-          email: client.txtEmail,
           type: client.clientType === 1 ? 'ASSOCIATION' : 'NON_ASSOCIATION',
           deletedAt: !client.active ? new Date() : undefined,
+        },
+      });
+
+      clientIdMap[client.idnClient] = newClient.id;
+    }
+    return;
+  });
+
+  // Emails
+
+  const dumpEmails = (await client.query('SELECT * from "tblEmailAddresses"'))
+    .rows;
+
+  await prisma.$transaction(async (tx) => {
+    for (const email of dumpEmails) {
+      if (!email.membername || !email.memberemail) continue;
+
+      await tx.emailAddress.create({
+        data: {
+          clientId: clientIdMap[email.clientid],
+          memberName: email.membername,
+          email: email.memberemail,
+          shouldSendReport: email.sendreport,
         },
       });
     }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Client, Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class ClientsRepository {
+export class ClientRepository {
   constructor(private readonly prismaClient: PrismaClient) {}
 
   findAll(): Promise<Client[]> {

@@ -1,50 +1,50 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
 
-import { Client, User } from '@prisma/client';
-import { ClientsRepository } from './clients.repository';
+import { Client } from '@prisma/client';
+import { ClientRepository } from './clients.repository';
 import {
-  CreateClientsDto,
-  DeleteClientsDto,
-  UpdateClientsDto,
+  CreateClientDto,
+  DeleteClientDto,
+  UpdateClientDto,
 } from './clients.dto';
 import { transformPrismaError } from 'util/transformers';
 
 @Controller('clients')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export class UsersController {
-  constructor(private readonly clientRepostiory: ClientsRepository) {}
+export class ClientController {
+  constructor(private readonly clientRepostiory: ClientRepository) {}
 
   @Get()
-  async getUsers(): Promise<Client[]> {
+  async getAllClients(): Promise<Client[]> {
     return this.clientRepostiory.findAll();
   }
 
   @Post()
-  async createUser(@Body() clientsData: CreateClientsDto): Promise<Client> {
-    let user;
+  async createClient(@Body() clientsData: CreateClientDto): Promise<Client> {
+    let client;
     try {
-      user = await this.clientRepostiory.create(clientsData);
+      client = await this.clientRepostiory.create(clientsData);
     } catch (e) {
       throw transformPrismaError(e);
     }
-    return user;
+    return client;
   }
 
   @Put()
-  async updateUser(@Body() updateData: UpdateClientsDto): Promise<User> {
-    let user;
+  async updateClient(@Body() updateData: UpdateClientDto): Promise<Client> {
+    let client;
     const { clientId, ...data } = updateData;
     try {
-      user = await this.clientRepostiory.update(clientId, data);
+      client = await this.clientRepostiory.update(clientId, data);
     } catch (e) {
       throw transformPrismaError(e);
     }
-    return user;
+    return client;
   }
 
   @Delete()
-  async deleteUser(@Body() { clientId }: DeleteClientsDto): Promise<void> {
+  async deleteClient(@Body() { clientId }: DeleteClientDto): Promise<void> {
     try {
       await this.clientRepostiory.delete(clientId);
     } catch (e) {

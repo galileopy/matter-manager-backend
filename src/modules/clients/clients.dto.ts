@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateClientsDto {
+export class CreateClientDto {
   @IsString()
   @MinLength(1)
   name: string;
@@ -29,7 +29,7 @@ export class CreateClientsDto {
   type: ClientType;
 }
 
-export class UpdateClientsDto {
+export class UpdateClientDto {
   @IsString()
   @IsUUID()
   clientId: string;
@@ -54,7 +54,7 @@ export class UpdateClientsDto {
   type: ClientType;
 }
 
-export class DeleteClientsDto {
+export class DeleteClientDto {
   @IsString()
   @IsUUID()
   clientId: string;

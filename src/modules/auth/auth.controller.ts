@@ -8,7 +8,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { UsersRepository } from '../users/users.repository';
+import { UserRepository } from '../users/users.repository';
 
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
@@ -20,7 +20,7 @@ import { User } from '@prisma/client';
 export class AuthController {
   constructor(
     private readonly configService: ConfigService,
-    private readonly userRepository: UsersRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -30,9 +30,7 @@ export class AuthController {
     @Body() data: LoginDto,
     @Res({ passthrough: true }) response,
   ): Promise<User> {
-    const user = await this.userRepository.findActiveUserByUsername(
-      data.username,
-    );
+    const user = await this.userRepository.findActiveByUsername(data.username);
     if (!user) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 
     const token = jwt.sign(
