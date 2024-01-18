@@ -6,7 +6,9 @@ import * as pg from 'pg';
 import { PrismaClient } from '@prisma/client';
 
 async function runEtl(): Promise<void> {
+  const userIdMap = {};
   const clientIdMap = {};
+  const statusIdMap = {};
 
   const application = await NestFactory.createApplicationContext(AppModule);
   const config = application.get(ConfigService);
@@ -17,6 +19,10 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+
+  await prisma.matter.deleteMany();
+  await prisma.matterStatus.deleteMany();
+  await prisma.emailAddress.deleteMany();
   await prisma.client.deleteMany();
   await prisma.user.deleteMany();
 
@@ -33,7 +39,7 @@ async function runEtl(): Promise<void> {
       )
         continue;
 
-      await tx.user.create({
+      const newUser = await tx.user.create({
         data: {
           username: user.windowslogin,
           email: user.email,
@@ -43,6 +49,7 @@ async function runEtl(): Promise<void> {
           abbreviation: user.threeLetterAbbreviation.toUpperCase(),
         },
       });
+      userIdMap[user.userid] = newUser.id;
     }
     return;
   });
@@ -86,6 +93,45 @@ async function runEtl(): Promise<void> {
           memberName: email.membername,
           email: email.memberemail,
           shouldSendReport: email.sendreport,
+        },
+      });
+    }
+    return;
+  });
+
+  // MatterStatus
+
+  const dumpStatuses = (await client.query('SELECT * from "tblStatus"')).rows;
+
+  await prisma.$transaction(async (tx) => {
+    for (const status of dumpStatuses) {
+      const newStatus = await tx.matterStatus.create({
+        data: {
+          status: status.status,
+        },
+      });
+      statusIdMap[status.statusID] = newStatus.id;
+    }
+    return;
+  });
+
+  // Matters
+
+  const dumpMatters = (await client.query('SELECT * from "tblMatters"')).rows;
+
+  await prisma.$transaction(async (tx) => {
+    for (const matter of dumpMatters) {
+      if (!clientIdMap[matter.clientid]) continue;
+      await tx.matter.create({
+        data: {
+          client: { connect: { id: clientIdMap[matter.clientid] } },
+          status: { connect: { id: statusIdMap[matter.statusid] } },
+          project: matter.project,
+          fileNumber: matter.fileNumber,
+          closedAt: matter.wasDeleted ? new Date() : undefined,
+          deletedAt: matter.dateClosed,
+          needsWrittenConfirmation: matter.writtenConfirmationRequired,
+          confirmedAt: matter.dateWrittenConfirmationReceived,
         },
       });
     }

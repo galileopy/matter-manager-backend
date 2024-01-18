@@ -1,5 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
 
 import { Role, User } from '@prisma/client';
 import { UserRepository } from './users.repository';
@@ -19,7 +27,9 @@ export class UserController {
   }
 
   @Post()
-  async createUser(@Body() userData: CreateUserDto): Promise<User> {
+  async createUser(
+    @Body(new ValidationPipe({ whitelist: true })) userData: CreateUserDto,
+  ): Promise<User> {
     let user;
     try {
       user = await this.userRepository.create(userData);
@@ -30,7 +40,9 @@ export class UserController {
   }
 
   @Put()
-  async updateUser(@Body() updateData: UpdateUserDto): Promise<User> {
+  async updateUser(
+    @Body(new ValidationPipe({ whitelist: true })) updateData: UpdateUserDto,
+  ): Promise<User> {
     let user;
     const { userId, ...data } = updateData;
     try {
@@ -42,7 +54,9 @@ export class UserController {
   }
 
   @Delete()
-  async deleteUser(@Body() { userId }: DeleteUserDto): Promise<void> {
+  async deleteUser(
+    @Body(new ValidationPipe({ whitelist: true })) { userId }: DeleteUserDto,
+  ): Promise<void> {
     try {
       await this.userRepository.delete(userId);
       global['deleted_users'].add(userId);

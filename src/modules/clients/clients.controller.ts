@@ -1,5 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
 
 import { Client } from '@prisma/client';
 import { ClientRepository } from './clients.repository';
@@ -19,9 +27,10 @@ export class ClientController {
   async getAllClients(): Promise<Client[]> {
     return this.clientRepostiory.findAll();
   }
-
   @Post()
-  async createClient(@Body() clientsData: CreateClientDto): Promise<Client> {
+  async createClient(
+    @Body(new ValidationPipe({ whitelist: true })) clientsData: CreateClientDto,
+  ): Promise<Client> {
     let client;
     try {
       client = await this.clientRepostiory.create(clientsData);
@@ -32,7 +41,9 @@ export class ClientController {
   }
 
   @Put()
-  async updateClient(@Body() updateData: UpdateClientDto): Promise<Client> {
+  async updateClient(
+    @Body(new ValidationPipe({ whitelist: true })) updateData: UpdateClientDto,
+  ): Promise<Client> {
     let client;
     const { clientId, ...data } = updateData;
     try {
@@ -44,7 +55,10 @@ export class ClientController {
   }
 
   @Delete()
-  async deleteClient(@Body() { clientId }: DeleteClientDto): Promise<void> {
+  async deleteClient(
+    @Body(new ValidationPipe({ whitelist: true }))
+    { clientId }: DeleteClientDto,
+  ): Promise<void> {
     try {
       await this.clientRepostiory.delete(clientId);
     } catch (e) {

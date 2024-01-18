@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { EmailAddress } from '@prisma/client';
@@ -27,7 +28,9 @@ export class EmailController {
   }
 
   @Post()
-  async createEmail(@Body() createData: CreateEmailDto): Promise<EmailAddress> {
+  async createEmail(
+    @Body(new ValidationPipe({ whitelist: true })) createData: CreateEmailDto,
+  ): Promise<EmailAddress> {
     let emails;
     const { clientId, ...data } = createData;
 
@@ -43,7 +46,9 @@ export class EmailController {
   }
 
   @Put()
-  async updateEmail(@Body() updateData: UpdateEmailDto): Promise<EmailAddress> {
+  async updateEmail(
+    @Body(new ValidationPipe({ whitelist: true })) updateData: UpdateEmailDto,
+  ): Promise<EmailAddress> {
     let emails;
     const { emailId, ...data } = updateData;
     try {
@@ -55,7 +60,9 @@ export class EmailController {
   }
 
   @Delete()
-  async deleteEmail(@Body() { emailId }: DeleteEmailDto): Promise<void> {
+  async deleteEmail(
+    @Body(new ValidationPipe({ whitelist: true })) { emailId }: DeleteEmailDto,
+  ): Promise<void> {
     try {
       await this.emailRepository.delete(emailId);
     } catch (e) {

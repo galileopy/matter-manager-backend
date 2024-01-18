@@ -6,7 +6,9 @@ export class EmailRepository {
   constructor(private readonly prismaClient: PrismaClient) {}
 
   findAllByClientId(clientId: string): Promise<EmailAddress[]> {
-    return this.prismaClient.emailAddress.findMany({ where: { clientId } });
+    return this.prismaClient.emailAddress.findMany({
+      where: { clientId, deletedAt: null },
+    });
   }
 
   create(emailData: Prisma.EmailAddressCreateInput): Promise<EmailAddress> {
@@ -18,12 +20,15 @@ export class EmailRepository {
     emailData: Prisma.EmailAddressUpdateInput,
   ): Promise<EmailAddress> {
     return this.prismaClient.emailAddress.update({
-      where: { id: emailAddressId },
+      where: { id: emailAddressId, deletedAt: null },
       data: emailData,
     });
   }
 
   delete(emailId: string): Promise<EmailAddress> {
-    return this.prismaClient.emailAddress.delete({ where: { id: emailId } });
+    return this.prismaClient.emailAddress.update({
+      where: { id: emailId },
+      data: { deletedAt: new Date() },
+    });
   }
 }

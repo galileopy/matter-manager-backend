@@ -37,6 +37,7 @@ model Client {
   type         ClientType         @default(NON_ASSOCIATION)
   deletedAt    DateTime?
   emailAddresses EmailAddress[]
+  matters      Matter[]
 }
 
 enum ClientType {
@@ -53,4 +54,27 @@ model EmailAddress {
   memberName       String
   email            String
   shouldSendReport Boolean
+  deletedAt        DateTime?
+}
+
+model MatterStatus {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  status           String             @unique
+  matters          Matter[]
+}
+
+model Matter {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  status           MatterStatus       @relation(fields: [statusId], references: [id])
+  statusId         String             @db.Uuid
+  client           Client             @relation(fields: [clientId], references: [id])
+  clientId         String             @db.Uuid
+  project          String?
+  fileNumber       String
+  closedAt         DateTime?
+  deletedAt        DateTime?
+  needsWrittenConfirmation Boolean
+  confirmedAt      DateTime?
 }
