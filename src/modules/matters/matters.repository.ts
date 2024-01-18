@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   Client,
-  EmailAddress,
   Matter,
   MatterStatus,
   Prisma,

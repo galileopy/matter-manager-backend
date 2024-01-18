@@ -1,10 +1,9 @@
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
-  IsEmail,
   IsString,
   IsUUID,
+  Matches,
 } from 'class-validator';
 
 export class CreateMatterDto {
@@ -20,6 +19,9 @@ export class CreateMatterDto {
   project: string;
 
   @IsString()
+  @Matches(/\d{6}-\d{3}$/, {
+    message: 'File number must be in XXXXXX-XXX format',
+  })
   fileNumber: string;
 
   @IsDateString()
@@ -42,6 +44,9 @@ export class UpdateMatterDto {
   project: string;
 
   @IsString()
+  @Matches(/\d{6}-\d{3}$/, {
+    message: 'File number must be in XXXXXX-XXX format',
+  })
   fileNumber: string;
 
   @IsDateString()
