@@ -23,8 +23,8 @@ export class MatterStatusRepository {
     });
   }
 
-  delete(statusId: string): Promise<void> {
-    this.prismaClient.matterStatus.delete({
+  async delete(statusId: string): Promise<void> {
+    await this.prismaClient.matterStatus.delete({
       where: { id: statusId },
     });
     return;

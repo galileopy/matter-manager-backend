@@ -12,6 +12,7 @@ import { AuthGuard } from './middleware/auth.guard';
 import { ClientModule } from './modules/clients/clients.module';
 import { EmailModule } from './modules/emails/emails.module';
 import { MatterModule } from './modules/matters/matters.module';
+import { AdminOptionsModule } from './modules/admin-options/admin-options.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MatterModule } from './modules/matters/matters.module';
     ClientModule,
     EmailModule,
     MatterModule,
+    AdminOptionsModule,
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend/browser'),

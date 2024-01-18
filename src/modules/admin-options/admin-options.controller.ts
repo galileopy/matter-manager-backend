@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { EmailAddress, Matter, MatterStatus, Role } from '@prisma/client';
+import { EmailAddress, MatterStatus, Role } from '@prisma/client';
 import {
   CreateMatterStatusDto,
   DeleteMatterStatusDto,
@@ -70,7 +71,7 @@ export class AdminOptionsController {
     try {
       await this.matterStatusRepository.delete(statusId);
     } catch (e) {
-      throw transformPrismaError(e);
+      throw new BadRequestException('Cannot delete status that is in use.');
     }
   }
 }
