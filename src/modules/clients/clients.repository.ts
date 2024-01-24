@@ -9,6 +9,10 @@ export class ClientRepository {
     return this.prismaClient.client.findMany();
   }
 
+  findById(clientId): Promise<Client> {
+    return this.prismaClient.client.findUnique({ where: { id: clientId } });
+  }
+
   create(userData: Prisma.ClientCreateInput): Promise<Client> {
     return this.prismaClient.client.create({ data: userData });
   }

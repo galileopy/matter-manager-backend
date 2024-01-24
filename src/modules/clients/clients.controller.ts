@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   ValidationPipe,
@@ -27,6 +28,12 @@ export class ClientController {
   async getAllClients(): Promise<Client[]> {
     return this.clientRepostiory.findAll();
   }
+
+  @Get(':clientId')
+  async getById(@Param() params: { clientId: string }): Promise<Client> {
+    return this.clientRepostiory.findById(params.clientId);
+  }
+
   @Post()
   async createClient(
     @Body(new ValidationPipe({ whitelist: true })) clientsData: CreateClientDto,
