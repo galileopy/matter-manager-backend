@@ -13,6 +13,17 @@ export class ClientRepository {
     return this.prismaClient.client.findUnique({ where: { id: clientId } });
   }
 
+  async findActiveNames(): Promise<{ id: string; name: string }[]> {
+    const activeClients = await this.prismaClient.client.findMany({
+      where: { deletedAt: null },
+    });
+
+    return activeClients.map((client) => ({
+      id: client.id,
+      name: client.suffix ? `${client.name} ${client.suffix}` : client.name,
+    }));
+  }
+
   create(userData: Prisma.ClientCreateInput): Promise<Client> {
     return this.prismaClient.client.create({ data: userData });
   }

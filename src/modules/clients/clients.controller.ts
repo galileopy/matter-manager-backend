@@ -29,6 +29,11 @@ export class ClientController {
     return this.clientRepostiory.findAll();
   }
 
+  @Get('names')
+  async getActiveNames(): Promise<{ id: string; name: string }[]> {
+    return this.clientRepostiory.findActiveNames();
+  }
+
   @Get(':clientId')
   async getById(@Param() params: { clientId: string }): Promise<Client> {
     return this.clientRepostiory.findById(params.clientId);

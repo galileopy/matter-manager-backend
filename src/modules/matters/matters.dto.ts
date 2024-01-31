@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsDateString,
+  IsOptional,
   IsString,
   IsUUID,
   Matches,
@@ -25,7 +26,12 @@ export class CreateMatterDto {
   fileNumber: string;
 
   @IsDateString()
+  @IsOptional()
   closedAt: string;
+
+  @IsDateString()
+  @IsOptional()
+  confirmedAt: string;
 
   @IsBoolean()
   needsWrittenConfirmation: boolean;
@@ -50,25 +56,18 @@ export class UpdateMatterDto {
   fileNumber: string;
 
   @IsDateString()
+  @IsOptional()
   closedAt: string;
+
+  @IsDateString()
+  @IsOptional()
+  confirmedAt: string;
 
   @IsBoolean()
   needsWrittenConfirmation: boolean;
 }
 
 export class DeleteMatterDto {
-  @IsString()
-  @IsUUID()
-  matterId: string;
-}
-
-export class ConfirmMatterDto {
-  @IsString()
-  @IsUUID()
-  matterId: string;
-}
-
-export class CloseMatterDto {
   @IsString()
   @IsUUID()
   matterId: string;

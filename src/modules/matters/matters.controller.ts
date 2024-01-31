@@ -11,8 +11,6 @@ import {
 
 import { Client, EmailAddress, Matter, MatterStatus } from '@prisma/client';
 import {
-  CloseMatterDto,
-  ConfirmMatterDto,
   CreateMatterDto,
   DeleteMatterDto,
   UpdateMatterDto,
@@ -72,30 +70,6 @@ export class MatterController {
   ): Promise<void> {
     try {
       await this.matterRepository.delete(matterId);
-    } catch (e) {
-      throw transformPrismaError(e);
-    }
-  }
-
-  @Put('confirmation')
-  async confirmMatter(
-    @Body(new ValidationPipe({ whitelist: true }))
-    { matterId }: ConfirmMatterDto,
-  ): Promise<void> {
-    try {
-      await this.matterRepository.confirm(matterId);
-    } catch (e) {
-      throw transformPrismaError(e);
-    }
-  }
-
-  @Put('close')
-  async closeMatter(
-    @Body(new ValidationPipe({ whitelist: true }))
-    { matterId }: CloseMatterDto,
-  ): Promise<void> {
-    try {
-      await this.matterRepository.close(matterId);
     } catch (e) {
       throw transformPrismaError(e);
     }
