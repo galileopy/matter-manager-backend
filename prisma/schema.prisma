@@ -21,6 +21,8 @@ model User {
   lastName     String 
   abbreviation String             @unique
   deletedAt    DateTime?
+
+  internalNotes    InternalNote[]
 }
 
 enum Role {
@@ -77,4 +79,19 @@ model Matter {
   deletedAt        DateTime?
   needsWrittenConfirmation Boolean
   confirmedAt      DateTime?
+  
+  internalNotes    InternalNote[]
+}
+
+model InternalNote {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  note             String
+  addedByUser      User               @relation(fields: [addedBy], references: [id])
+  addedBy          String             @db.Uuid
+  matter           Matter             @relation(fields: [matterId], references: [id])
+  matterId         String             @db.Uuid
+
+  deletedAt        DateTime?
 }

@@ -9,6 +9,7 @@ async function runEtl(): Promise<void> {
   const userIdMap = {};
   const clientIdMap = {};
   const statusIdMap = {};
+  const matterIdMap = {};
 
   const application = await NestFactory.createApplicationContext(AppModule);
   const config = application.get(ConfigService);
@@ -19,12 +20,22 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
-
+  await prisma.internalNote.deleteMany();
   await prisma.matter.deleteMany();
   await prisma.matterStatus.deleteMany();
   await prisma.emailAddress.deleteMany();
   await prisma.client.deleteMany();
   await prisma.user.deleteMany();
+
+  function createBatches<T>(array: T[], batchSize: number): T[][] {
+    const batches: T[][] = [];
+
+    for (let i = 0; i < array.length; i += batchSize) {
+      batches.push(array.slice(i, i + batchSize));
+    }
+
+    return batches;
+  }
 
   //   USERS
   const dumpUsers = (await client.query('SELECT * from "tblUsers"')).rows;
@@ -122,7 +133,7 @@ async function runEtl(): Promise<void> {
   await prisma.$transaction(async (tx) => {
     for (const matter of dumpMatters) {
       if (!clientIdMap[matter.clientid]) continue;
-      await tx.matter.create({
+      const newMatter = await tx.matter.create({
         data: {
           client: { connect: { id: clientIdMap[matter.clientid] } },
           status: { connect: { id: statusIdMap[matter.statusid] } },
@@ -134,8 +145,36 @@ async function runEtl(): Promise<void> {
           confirmedAt: matter.dateWrittenConfirmationReceived,
         },
       });
+      matterIdMap[matter.mattersid] = newMatter.id;
     }
     return;
+  });
+
+  // Internal Notes
+  const dumpInternalNotes = (
+    await client.query('SELECT * from "tblGeneralMattersInternalNotes"')
+  ).rows
+    .filter((note) => {
+      const hasUser = userIdMap[note.addedbyuserid];
+      const hasMatter = matterIdMap[note.generalmattersid];
+
+      return hasUser && hasMatter;
+    })
+    .map((note) => {
+      return {
+        addedBy: userIdMap[note.addedbyuserid],
+        matterId: matterIdMap[note.generalmattersid],
+        note: note.Note,
+        deletedAt: !note.isActive ? new Date() : undefined,
+      };
+    });
+
+  const batches = createBatches(dumpInternalNotes, 100);
+
+  await prisma.$transaction(async (tx) => {
+    for (const batch of batches) {
+      await tx.internalNote.createMany({ data: batch });
+    }
   });
 }
 
