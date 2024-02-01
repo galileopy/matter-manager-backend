@@ -8,6 +8,7 @@ export class InternalNotesRepository {
   findAllByMatterId(matterId: string): Promise<InternalNote[]> {
     return this.prismaClient.internalNote.findMany({
       where: { matterId },
+      include: { addedByUser: true },
     });
   }
 

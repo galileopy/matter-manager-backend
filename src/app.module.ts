@@ -13,6 +13,7 @@ import { ClientModule } from './modules/clients/clients.module';
 import { EmailModule } from './modules/emails/emails.module';
 import { MatterModule } from './modules/matters/matters.module';
 import { AdminOptionsModule } from './modules/admin-options/admin-options.module';
+import { InternalNotesModule } from './modules/internal-notes/internal-notes.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdminOptionsModule } from './modules/admin-options/admin-options.module
     EmailModule,
     MatterModule,
     AdminOptionsModule,
+    InternalNotesModule,
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend/browser'),
