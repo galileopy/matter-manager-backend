@@ -7,6 +7,8 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  Request,
   ValidationPipe,
 } from '@nestjs/common';
 
@@ -37,9 +39,11 @@ export class InternalNotesController {
   async createEmail(
     @Body(new ValidationPipe({ whitelist: true }))
     createData: CreateInternalNoteDto,
+    @Request() req: { user: { id: string } },
   ): Promise<EmailAddress> {
     let internalNotes;
-    const { matterId, addedBy, ...data } = createData;
+    const addedBy = req['user'].id;
+    const { matterId, ...data } = createData;
 
     try {
       internalNotes = await this.internalNotesRepository.create({

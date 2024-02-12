@@ -6,10 +6,6 @@ export class CreateInternalNoteDto {
   matterId: string;
 
   @IsString()
-  @IsUUID()
-  addedBy: string;
-
-  @IsString()
   note: string;
 }
 
