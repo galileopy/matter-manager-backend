@@ -55,30 +55,4 @@ export class MatterRepository {
       },
     });
   }
-
-  confirm(
-    matterId: string,
-  ): Promise<Matter & { status: MatterStatus; client: Client }> {
-    return this.prismaClient.matter.update({
-      where: { id: matterId, deletedAt: null },
-      data: { confirmedAt: new Date() },
-      include: {
-        client: true,
-        status: true,
-      },
-    });
-  }
-
-  close(
-    matterId: string,
-  ): Promise<Matter & { status: MatterStatus; client: Client }> {
-    return this.prismaClient.matter.update({
-      where: { id: matterId, deletedAt: null },
-      data: { closedAt: new Date() },
-      include: {
-        client: true,
-        status: true,
-      },
-    });
-  }
 }

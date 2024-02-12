@@ -141,8 +141,6 @@ async function runEtl(): Promise<void> {
           fileNumber: matter.fileNumber,
           closedAt: matter.wasDeleted ? new Date() : undefined,
           deletedAt: matter.dateClosed,
-          needsWrittenConfirmation: matter.writtenConfirmationRequired,
-          confirmedAt: matter.dateWrittenConfirmationReceived,
         },
       });
       matterIdMap[matter.mattersid] = newMatter.id;

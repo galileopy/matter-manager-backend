@@ -77,8 +77,6 @@ model Matter {
   fileNumber       String
   closedAt         DateTime?
   deletedAt        DateTime?
-  needsWrittenConfirmation Boolean
-  confirmedAt      DateTime?
   
   internalNotes    InternalNote[]
 }

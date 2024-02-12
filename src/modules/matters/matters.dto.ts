@@ -1,5 +1,4 @@
 import {
-  IsBoolean,
   IsDateString,
   IsOptional,
   IsString,
@@ -28,13 +27,6 @@ export class CreateMatterDto {
   @IsDateString()
   @IsOptional()
   closedAt: string;
-
-  @IsDateString()
-  @IsOptional()
-  confirmedAt: string;
-
-  @IsBoolean()
-  needsWrittenConfirmation: boolean;
 }
 
 export class UpdateMatterDto {
@@ -58,13 +50,6 @@ export class UpdateMatterDto {
   @IsDateString()
   @IsOptional()
   closedAt: string;
-
-  @IsDateString()
-  @IsOptional()
-  confirmedAt: string;
-
-  @IsBoolean()
-  needsWrittenConfirmation: boolean;
 }
 
 export class DeleteMatterDto {
