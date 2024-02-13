@@ -3,7 +3,7 @@ import { AppModule } from './src/app.module';
 import { ConfigService } from '@nestjs/config';
 
 import * as pg from 'pg';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 async function runEtl(): Promise<void> {
   const userIdMap = {};
@@ -20,6 +20,7 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+  await prisma.comment.deleteMany();
   await prisma.internalNote.deleteMany();
   await prisma.matter.deleteMany();
   await prisma.matterStatus.deleteMany();
@@ -144,6 +145,15 @@ async function runEtl(): Promise<void> {
         },
       });
       matterIdMap[matter.mattersid] = newMatter.id;
+
+      if (matter.comments) {
+        await tx.comment.create({
+          data: {
+            matterId: newMatter.id,
+            comment: matter.comments,
+          },
+        });
+      }
     }
     return;
   });

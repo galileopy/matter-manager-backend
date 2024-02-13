@@ -14,6 +14,7 @@ import { EmailModule } from './modules/emails/emails.module';
 import { MatterModule } from './modules/matters/matters.module';
 import { AdminOptionsModule } from './modules/admin-options/admin-options.module';
 import { InternalNotesModule } from './modules/internal-notes/internal-notes.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { InternalNotesModule } from './modules/internal-notes/internal-notes.mod
     MatterModule,
     AdminOptionsModule,
     InternalNotesModule,
+    CommentsModule,
     AuthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend/browser'),

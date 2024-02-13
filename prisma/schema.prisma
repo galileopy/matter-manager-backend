@@ -23,6 +23,7 @@ model User {
   deletedAt    DateTime?
 
   internalNotes    InternalNote[]
+  comments    Comment[]
 }
 
 enum Role {
@@ -79,6 +80,7 @@ model Matter {
   deletedAt        DateTime?
   
   internalNotes    InternalNote[]
+  comments    Comment[]
 }
 
 model InternalNote {
@@ -90,6 +92,17 @@ model InternalNote {
   addedBy          String             @db.Uuid
   matter           Matter             @relation(fields: [matterId], references: [id])
   matterId         String             @db.Uuid
-
   deletedAt        DateTime?
 }
+
+model Comment {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  
+  comment          String
+  addedByUser      User?               @relation(fields: [addedBy], references: [id])
+  addedBy          String?             @db.Uuid
+  matter           Matter             @relation(fields: [matterId], references: [id])
+  matterId         String             @db.Uuid
+}
+
