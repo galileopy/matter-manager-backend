@@ -19,7 +19,7 @@ export class CreateMatterDto {
   project: string;
 
   @IsString()
-  @Matches(/\d{6}-\d{3}$/, {
+  @Matches(/\d{6}-\w{1,3}$/, {
     message: 'File number must be in XXXXXX-XXX format',
   })
   fileNumber: string;
@@ -42,7 +42,7 @@ export class UpdateMatterDto {
   project: string;
 
   @IsString()
-  @Matches(/\d{6}-\d{3}$/, {
+  @Matches(/\d{6}-\w{1,3}$/, {
     message: 'File number must be in XXXXXX-XXX format',
   })
   fileNumber: string;
