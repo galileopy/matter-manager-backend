@@ -20,6 +20,7 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+  await prisma.matterAssignment.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.internalNote.deleteMany();
   await prisma.matter.deleteMany();
@@ -151,6 +152,17 @@ async function runEtl(): Promise<void> {
           data: {
             matterId: newMatter.id,
             comment: matter.comments,
+          },
+        });
+      }
+
+      if (matter.assignedtoID && userIdMap[matter.assignedtoID]) {
+        await tx.matterAssignment.create({
+          data: {
+            createdAt: new Date(matter.assignedDate),
+            assignedBy: matter.assignedby,
+            matterId: newMatter.id,
+            userId: userIdMap[matter.assignedtoID],
           },
         });
       }

@@ -57,3 +57,13 @@ export class DeleteMatterDto {
   @IsUUID()
   matterId: string;
 }
+
+export class CreateAssignmentDto {
+  @IsString()
+  @IsUUID()
+  userId: string;
+
+  @IsString()
+  @IsOptional()
+  assignedBy?: string;
+}

@@ -4,24 +4,36 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   ValidationPipe,
 } from '@nestjs/common';
 
-import { Client, EmailAddress, Matter, MatterStatus } from '@prisma/client';
 import {
+  Client,
+  EmailAddress,
+  Matter,
+  MatterAssignment,
+  MatterStatus,
+} from '@prisma/client';
+import {
+  CreateAssignmentDto,
   CreateMatterDto,
   DeleteMatterDto,
   UpdateMatterDto,
 } from './matters.dto';
 import { transformPrismaError } from 'util/transformers';
 import { MatterRepository } from './matters.repository';
+import { AssignmentsRepository } from './assignments.repository';
 
 @Controller('matters')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class MatterController {
-  constructor(private readonly matterRepository: MatterRepository) {}
+  constructor(
+    private readonly matterRepository: MatterRepository,
+    private readonly assignmentRepository: AssignmentsRepository,
+  ) {}
 
   @Get()
   async getMatters(): Promise<
@@ -73,5 +85,33 @@ export class MatterController {
     } catch (e) {
       throw transformPrismaError(e);
     }
+  }
+
+  @Post(':matterId/assignment')
+  async assignMatter(
+    @Body(new ValidationPipe({ whitelist: true }))
+    createData: CreateAssignmentDto,
+    @Param() params: { matterId: string },
+  ): Promise<MatterAssignment> {
+    let assignment;
+    const { userId, ...data } = createData;
+
+    try {
+      assignment = await this.assignmentRepository.create({
+        ...data,
+        matter: { connect: { id: params.matterId } },
+        user: { connect: { id: userId } },
+      });
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+    return assignment;
+  }
+
+  @Get(':matterId/assignment')
+  async getAssignment(
+    @Param() params: { matterId: string },
+  ): Promise<MatterAssignment> {
+    return this.assignmentRepository.findCurrentByMatterId(params.matterId);
   }
 }
