@@ -7,6 +7,7 @@ export class AssignmentsRepository {
 
   findCurrentByMatterId(matterId: string): Promise<MatterAssignment> {
     return this.prismaClient.matterAssignment.findFirst({
+      include: { user: true },
       where: { matterId },
       take: 1,
       orderBy: {
