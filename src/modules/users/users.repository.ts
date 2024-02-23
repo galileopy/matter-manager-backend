@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient, User } from '@prisma/client';
+import { EmailService } from 'src/services/email.service';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prismaClient: PrismaClient) {}
+  constructor(
+    private readonly prismaClient: PrismaClient,
+    private readonly emailService: EmailService,
+  ) {}
 
   findActiveByUsername(username: string): Promise<User> {
     return this.prismaClient.user.findFirst({
@@ -26,7 +30,8 @@ export class UserRepository {
     });
   }
 
-  delete(userId: string): Promise<User> {
+  async delete(userId: string): Promise<User> {
+    await this.emailService.send();
     return this.prismaClient.user.update({
       where: { id: userId, deletedAt: null },
       data: { deletedAt: new Date() },

@@ -3,7 +3,7 @@ import { AppModule } from './src/app.module';
 import { ConfigService } from '@nestjs/config';
 
 import * as pg from 'pg';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 async function runEtl(): Promise<void> {
   const userIdMap = {};
@@ -20,6 +20,7 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+  await prisma.smtpConfig.deleteMany();
   await prisma.matterAssignment.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.internalNote.deleteMany();
@@ -195,6 +196,22 @@ async function runEtl(): Promise<void> {
     for (const batch of batches) {
       await tx.internalNote.createMany({ data: batch });
     }
+  });
+
+  // Email Config
+  await prisma.smtpConfig.create({
+    data: {
+      host: 'smtp.office365.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      maxConnections: 30,
+      tlsRejectUnauthorized: false,
+      tlsCiphers: 'SSLv3',
+      service: 'Outlook365',
+      user: 'ansbachertest@heartutilities.com',
+      pass: 'T3st09Microsft*',
+    },
   });
 }
 
