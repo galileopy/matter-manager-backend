@@ -21,6 +21,7 @@ async function runEtl(): Promise<void> {
 
   // -- DELETE ALL DATA --
   await prisma.smtpConfig.deleteMany();
+  await prisma.emailTemplate.deleteMany();
   await prisma.matterAssignment.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.internalNote.deleteMany();
@@ -39,6 +40,33 @@ async function runEtl(): Promise<void> {
 
     return batches;
   }
+
+  //   Email Templates
+  const dumpEmailTemplates = (
+    await client.query('SELECT * from "tblEmailsToMail"')
+  ).rows;
+
+  await prisma.$transaction(async (tx) => {
+    for (const template of dumpEmailTemplates) {
+      // only load users of type admin or user
+      if (
+        !template.emailDescription ||
+        template.emailDescription === 'Test' ||
+        template.emailDescription === 'Blank'
+      )
+        continue;
+
+      await tx.emailTemplate.create({
+        data: {
+          name: template.emailDescription,
+          body: template.emailHTML,
+          subjectPreText: template.pretext,
+          includeClientName: template.usename,
+          subjectPostText: template.posttext,
+        },
+      });
+    }
+  });
 
   //   USERS
   const dumpUsers = (await client.query('SELECT * from "tblUsers"')).rows;
@@ -65,7 +93,6 @@ async function runEtl(): Promise<void> {
       });
       userIdMap[user.userid] = newUser.id;
     }
-    return;
   });
 
   // CLIENTS
@@ -89,7 +116,6 @@ async function runEtl(): Promise<void> {
 
       clientIdMap[client.idnClient] = newClient.id;
     }
-    return;
   });
 
   // Emails
@@ -110,7 +136,6 @@ async function runEtl(): Promise<void> {
         },
       });
     }
-    return;
   });
 
   // MatterStatus
@@ -126,7 +151,6 @@ async function runEtl(): Promise<void> {
       });
       statusIdMap[status.statusID] = newStatus.id;
     }
-    return;
   });
 
   // Matters
@@ -168,7 +192,6 @@ async function runEtl(): Promise<void> {
         });
       }
     }
-    return;
   });
 
   // Internal Notes

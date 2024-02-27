@@ -135,3 +135,17 @@ model SmtpConfig {
   user              String
   pass              String
 }
+
+model EmailTemplate {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  name             String             @unique
+  body             String?
+  subjectPreText   String?
+  includeClientName Boolean
+  subjectPostText  String?
+  
+  deletedAt        DateTime?
+}
