@@ -10,10 +10,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { EmailAddress, EmailTemplate } from '@prisma/client';
+import { EmailTemplate } from '@prisma/client';
 import {
   CreateEmailTemplateDto,
   DeleteEmailTemplateDto,
+  UpdateEmaiTemplatelBodyDto,
   UpdateEmaiTemplatelDto,
 } from './email-template.dto';
 import { transformPrismaError } from 'util/transformers';
@@ -32,10 +33,10 @@ export class EmailTemplateController {
   }
 
   @Post()
-  async createEmail(
+  async createTemplate(
     @Body(new ValidationPipe({ whitelist: true }))
     data: CreateEmailTemplateDto,
-  ): Promise<EmailAddress> {
+  ): Promise<EmailTemplate> {
     let template;
 
     try {
@@ -47,22 +48,37 @@ export class EmailTemplateController {
   }
 
   @Put()
-  async updateEmail(
+  async updateTemplate(
     @Body(new ValidationPipe({ whitelist: true }))
     updateData: UpdateEmaiTemplatelDto,
-  ): Promise<EmailAddress> {
-    let emails;
+  ): Promise<EmailTemplate> {
+    let template;
     const { templateId, ...data } = updateData;
     try {
-      emails = await this.emailTemplateRepository.update(templateId, data);
+      template = await this.emailTemplateRepository.update(templateId, data);
     } catch (e) {
       throw transformPrismaError(e);
     }
-    return emails;
+    return template;
+  }
+
+  @Put()
+  async updateTemplateBody(
+    @Body(new ValidationPipe({ whitelist: true }))
+    updateData: UpdateEmaiTemplatelBodyDto,
+  ): Promise<EmailTemplate> {
+    let template;
+    const { templateId, ...data } = updateData;
+    try {
+      template = await this.emailTemplateRepository.update(templateId, data);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+    return template;
   }
 
   @Delete()
-  async deleteEmail(
+  async deleteTemplate(
     @Body(new ValidationPipe({ whitelist: true }))
     { templateId }: DeleteEmailTemplateDto,
   ): Promise<void> {

@@ -30,9 +30,6 @@ export class UpdateEmaiTemplatelDto {
   name: string;
 
   @IsString()
-  body: string;
-
-  @IsString()
   @IsOptional()
   subjectPreText: string;
 
@@ -43,6 +40,15 @@ export class UpdateEmaiTemplatelDto {
   @IsString()
   @IsOptional()
   subjectPostText: string;
+}
+
+export class UpdateEmaiTemplatelBodyDto {
+  @IsString()
+  @IsUUID()
+  templateId: string;
+
+  @IsString()
+  body: string;
 }
 
 export class DeleteEmailTemplateDto {
