@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
   ValidationPipe,
@@ -62,7 +61,7 @@ export class EmailTemplateController {
     return template;
   }
 
-  @Put()
+  @Put('body')
   async updateTemplateBody(
     @Body(new ValidationPipe({ whitelist: true }))
     updateData: UpdateEmaiTemplatelBodyDto,

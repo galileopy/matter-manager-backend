@@ -6,9 +6,6 @@ export class CreateEmailTemplateDto {
   name: string;
 
   @IsString()
-  body: string;
-
-  @IsString()
   @IsOptional()
   subjectPreText: string;
 
