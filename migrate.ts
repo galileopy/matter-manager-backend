@@ -46,153 +46,141 @@ async function runEtl(): Promise<void> {
     await client.query('SELECT * from "tblEmailsToMail"')
   ).rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const template of dumpEmailTemplates) {
-      // only load users of type admin or user
-      if (
-        !template.emailDescription ||
-        template.emailDescription === 'Test' ||
-        template.emailDescription === 'Blank'
-      )
-        continue;
+  for (const template of dumpEmailTemplates) {
+    // only load users of type admin or user
+    if (
+      !template.emailDescription ||
+      template.emailDescription === 'Test' ||
+      template.emailDescription === 'Blank'
+    )
+      continue;
 
-      await tx.emailTemplate.create({
-        data: {
-          name: template.emailDescription,
-          body: template.emailHTML,
-          subjectPreText: template.pretext,
-          includeClientName: template.usename,
-          subjectPostText: template.posttext,
-        },
-      });
-    }
-  });
+    await prisma.emailTemplate.create({
+      data: {
+        name: template.emailDescription,
+        body: template.emailHTML,
+        subjectPreText: template.pretext,
+        includeClientName: template.usename,
+        subjectPostText: template.posttext,
+      },
+    });
+  }
 
   //   USERS
   const dumpUsers = (await client.query('SELECT * from "tblUsers"')).rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const user of dumpUsers) {
-      // only load users of type admin or user
-      if (
-        user.userTypeID >= 3 ||
-        !user.windowslogin ||
-        !user.threeLetterAbbreviation
-      )
-        continue;
+  for (const user of dumpUsers) {
+    // only load users of type admin or user
+    if (
+      user.userTypeID >= 3 ||
+      !user.windowslogin ||
+      !user.threeLetterAbbreviation
+    )
+      continue;
 
-      const newUser = await tx.user.create({
-        data: {
-          username: user.windowslogin,
-          email: user.email,
-          role: user.userTypeID === 1 ? 'USER' : 'ADMIN',
-          firstName: user.EmployeeFirstName ?? user.windowslogin,
-          lastName: user.EmployeeLastName ?? user.windowslogin,
-          abbreviation: user.threeLetterAbbreviation.toUpperCase(),
-        },
-      });
-      userIdMap[user.userid] = newUser.id;
-    }
-  });
+    const newUser = await prisma.user.create({
+      data: {
+        username: user.windowslogin,
+        email: user.email,
+        role: user.userTypeID === 1 ? 'USER' : 'ADMIN',
+        firstName: user.EmployeeFirstName ?? user.windowslogin,
+        lastName: user.EmployeeLastName ?? user.windowslogin,
+        abbreviation: user.threeLetterAbbreviation.toUpperCase(),
+      },
+    });
+    userIdMap[user.userid] = newUser.id;
+  }
 
   // CLIENTS
 
   const dumpClients = (await client.query('SELECT * from "tblClient"')).rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const client of dumpClients) {
-      if (!client.txtClientName) continue;
+  for (const client of dumpClients) {
+    if (!client.txtClientName) continue;
 
-      const newClient = await tx.client.create({
-        data: {
-          name: client.txtClientName,
-          suffix: client.nameWithSuffixes
-            ? client.nameWithSuffixes.replace(client.txtClientName, '')
-            : undefined,
-          type: client.clientType === 1 ? 'ASSOCIATION' : 'NON_ASSOCIATION',
-          deletedAt: !client.active ? new Date() : undefined,
-        },
-      });
+    const newClient = await prisma.client.create({
+      data: {
+        name: client.txtClientName,
+        suffix: client.nameWithSuffixes
+          ? client.nameWithSuffixes.replace(client.txtClientName, '')
+          : undefined,
+        type: client.clientType === 1 ? 'ASSOCIATION' : 'NON_ASSOCIATION',
+        deletedAt: !client.active ? new Date() : undefined,
+      },
+    });
 
-      clientIdMap[client.idnClient] = newClient.id;
-    }
-  });
+    clientIdMap[client.idnClient] = newClient.id;
+  }
 
   // Emails
 
   const dumpEmails = (await client.query('SELECT * from "tblEmailAddresses"'))
     .rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const email of dumpEmails) {
-      if (!email.membername || !email.memberemail) continue;
+  for (const email of dumpEmails) {
+    if (!email.membername || !email.memberemail) continue;
 
-      await tx.emailAddress.create({
-        data: {
-          clientId: clientIdMap[email.clientid],
-          memberName: email.membername,
-          email: email.memberemail,
-          shouldSendReport: email.sendreport,
-        },
-      });
-    }
-  });
+    await prisma.emailAddress.create({
+      data: {
+        clientId: clientIdMap[email.clientid],
+        memberName: email.membername,
+        email: email.memberemail,
+        shouldSendReport: email.sendreport,
+      },
+    });
+  }
 
   // MatterStatus
 
   const dumpStatuses = (await client.query('SELECT * from "tblStatus"')).rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const status of dumpStatuses) {
-      const newStatus = await tx.matterStatus.create({
-        data: {
-          status: status.status,
-        },
-      });
-      statusIdMap[status.statusID] = newStatus.id;
-    }
-  });
+  for (const status of dumpStatuses) {
+    const newStatus = await prisma.matterStatus.create({
+      data: {
+        status: status.status,
+      },
+    });
+    statusIdMap[status.statusID] = newStatus.id;
+  }
 
   // Matters
 
   const dumpMatters = (await client.query('SELECT * from "tblMatters"')).rows;
 
-  await prisma.$transaction(async (tx) => {
-    for (const matter of dumpMatters) {
-      if (!clientIdMap[matter.clientid]) continue;
-      const newMatter = await tx.matter.create({
+  for (const matter of dumpMatters) {
+    if (!clientIdMap[matter.clientid]) continue;
+    const newMatter = await prisma.matter.create({
+      data: {
+        client: { connect: { id: clientIdMap[matter.clientid] } },
+        status: { connect: { id: statusIdMap[matter.statusid] } },
+        project: matter.project,
+        fileNumber: matter.fileNumber,
+        closedAt: matter.wasDeleted ? new Date() : undefined,
+        deletedAt: matter.dateClosed,
+      },
+    });
+    matterIdMap[matter.mattersid] = newMatter.id;
+
+    if (matter.comments) {
+      await prisma.comment.create({
         data: {
-          client: { connect: { id: clientIdMap[matter.clientid] } },
-          status: { connect: { id: statusIdMap[matter.statusid] } },
-          project: matter.project,
-          fileNumber: matter.fileNumber,
-          closedAt: matter.wasDeleted ? new Date() : undefined,
-          deletedAt: matter.dateClosed,
+          matterId: newMatter.id,
+          comment: matter.comments,
         },
       });
-      matterIdMap[matter.mattersid] = newMatter.id;
-
-      if (matter.comments) {
-        await tx.comment.create({
-          data: {
-            matterId: newMatter.id,
-            comment: matter.comments,
-          },
-        });
-      }
-
-      if (matter.assignedtoID && userIdMap[matter.assignedtoID]) {
-        await tx.matterAssignment.create({
-          data: {
-            createdAt: new Date(matter.assignedDate),
-            assignedBy: matter.assignedby,
-            matterId: newMatter.id,
-            userId: userIdMap[matter.assignedtoID],
-          },
-        });
-      }
     }
-  });
+
+    if (matter.assignedtoID && userIdMap[matter.assignedtoID]) {
+      await prisma.matterAssignment.create({
+        data: {
+          createdAt: new Date(matter.assignedDate),
+          assignedBy: matter.assignedby,
+          matterId: newMatter.id,
+          userId: userIdMap[matter.assignedtoID],
+        },
+      });
+    }
+  }
 
   // Internal Notes
   const dumpInternalNotes = (
@@ -215,11 +203,9 @@ async function runEtl(): Promise<void> {
 
   const batches = createBatches(dumpInternalNotes, 100);
 
-  await prisma.$transaction(async (tx) => {
-    for (const batch of batches) {
-      await tx.internalNote.createMany({ data: batch });
-    }
-  });
+  for (const batch of batches) {
+    await prisma.internalNote.createMany({ data: batch });
+  }
 
   // Email Config
   await prisma.smtpConfig.create({
