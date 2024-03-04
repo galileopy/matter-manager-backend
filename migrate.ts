@@ -10,6 +10,7 @@ async function runEtl(): Promise<void> {
   const clientIdMap = {};
   const statusIdMap = {};
   const matterIdMap = {};
+  const distributionListIdMap = {};
 
   const application = await NestFactory.createApplicationContext(AppModule);
   const config = application.get(ConfigService);
@@ -20,6 +21,7 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+  await prisma.distributionList.deleteMany();
   await prisma.smtpConfig.deleteMany();
   await prisma.emailTemplate.deleteMany();
   await prisma.matterAssignment.deleteMany();

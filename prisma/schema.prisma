@@ -40,8 +40,11 @@ model Client {
   suffix       String?      
   type         ClientType         @default(NON_ASSOCIATION)
   deletedAt    DateTime?
+
   emailAddresses EmailAddress[]
   matters      Matter[]
+  distributionListClients DistributionListClient[]
+
 }
 
 enum ClientType {
@@ -148,4 +151,29 @@ model EmailTemplate {
   subjectPostText  String?
   
   deletedAt        DateTime?
+}
+
+model DistributionList {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  name             String             @unique
+  deletedAt        DateTime?
+  
+  distributionClientsList DistributionListClient[]
+}
+
+model DistributionListClient {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+
+
+  deletedAt        DateTime?
+
+  client           Client             @relation(fields: [clientId], references: [id])
+  clientId         String             @db.Uuid
+
+  distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
+  distributionListId         String             @db.Uuid
 }
