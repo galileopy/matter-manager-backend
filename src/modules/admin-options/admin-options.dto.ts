@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNumber, IsString, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNumber,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateMatterStatusDto {
   @IsString()
@@ -54,4 +60,18 @@ export class UpdateEmailOptionsDto {
 
   @IsString()
   pass: string;
+}
+
+export class SendTestEmailDto {
+  @IsString()
+  @IsEmail()
+  from: string;
+
+  @IsString()
+  @IsEmail()
+  to: string;
+
+  @IsString()
+  @IsEmail()
+  cc: string;
 }

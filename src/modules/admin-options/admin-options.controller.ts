@@ -14,6 +14,7 @@ import { EmailAddress, MatterStatus, Role, SmtpConfig } from '@prisma/client';
 import {
   CreateMatterStatusDto,
   DeleteMatterStatusDto,
+  SendTestEmailDto,
   UpdateEmailOptionsDto,
   UpdateMatterStatusDto,
 } from './admin-options.dto';
@@ -21,6 +22,7 @@ import { transformPrismaError } from 'util/transformers';
 import { MatterStatusRepository } from './matters-status.repository';
 import { Roles } from 'src/decorators/auth.decorator';
 import { EmailOptionsRepostory } from './email-options.repository';
+import { EmailService } from 'src/services/email.service';
 
 @Roles([Role.ADMIN])
 @Controller('admin-options')
@@ -28,7 +30,8 @@ import { EmailOptionsRepostory } from './email-options.repository';
 export class AdminOptionsController {
   constructor(
     private readonly matterStatusRepository: MatterStatusRepository,
-    private readonly emailoptionsRepository: EmailOptionsRepostory,
+    private readonly emailOptionsRepository: EmailOptionsRepostory,
+    private readonly emailService: EmailService,
   ) {}
 
   @Get('matter-status')
@@ -80,7 +83,7 @@ export class AdminOptionsController {
 
   @Get('email-options')
   async getEmailOptions(): Promise<SmtpConfig> {
-    return this.emailoptionsRepository.find();
+    return this.emailOptionsRepository.find();
   }
 
   @Put('email-options')
@@ -90,10 +93,18 @@ export class AdminOptionsController {
   ): Promise<SmtpConfig> {
     let options;
     try {
-      options = await this.emailoptionsRepository.update(updateData);
+      options = await this.emailOptionsRepository.update(updateData);
     } catch (e) {
       throw transformPrismaError(e);
     }
     return options;
+  }
+
+  @Post('test-email')
+  async sendTestEmail(
+    @Body(new ValidationPipe({ whitelist: true }))
+    testData: SendTestEmailDto,
+  ): Promise<void> {
+    await this.emailService.sendTest(testData);
   }
 }

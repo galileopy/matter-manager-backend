@@ -1,24 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as mailer from 'nodemailer';
+import { transformPrismaError } from 'util/transformers';
 
 @Injectable()
 export class EmailService {
   constructor(private readonly prismaClient: PrismaClient) {}
 
-  async send() {
+  async sendTest(data: SendTestData) {
     const transporter = await this.getTransporter();
 
     try {
-      const info = await transporter.sendMail({
-        from: '"Fred Foo 👻" <ansbachertest@heartutilities.com>', // sender address
-        to: 'drew.ansbacher@gmail.com', // list of receivers
-        subject: 'Hello ✔', // Subject line
-        text: 'Hello world?', // plain text body
-        html: '<b>Hello world?</b>', // html body
+      await transporter.sendMail({
+        from: `"Test" <${data.from}>`,
+        to: data.to,
+        cc: data.cc,
+        subject: 'Hello ✔',
+        text: 'Hello world?',
+        html: '<b>Hello world?</b>',
       });
     } catch (e) {
       console.log('ERROR', e);
+      throw transformPrismaError(e);
     }
 
     // console.log('Message sent: %s', info.messageId);
@@ -44,4 +47,10 @@ export class EmailService {
       },
     });
   }
+}
+
+export interface SendTestData {
+  from: string;
+  to: string;
+  cc: string;
 }
