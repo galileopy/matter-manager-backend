@@ -1,4 +1,4 @@
-import { IsArray, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { IsArray, IsString, IsUUID } from 'class-validator';
 
 export class CreateDistributionListDto {
   @IsString()
@@ -20,8 +20,6 @@ export class UpdateClientListDto {
   distributionListId: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @IsUUID(5, { each: true })
   clientIds: string[];
 }
 

@@ -8,7 +8,12 @@ export class DistributionListRepository {
   findAll(): Promise<DistributionList[]> {
     return this.prismaClient.distributionList.findMany({
       where: { deletedAt: null },
-      include: { distributionClientsList: { include: { client: true } } },
+      include: {
+        distributionClientsList: {
+          include: { client: true },
+          where: { deletedAt: null },
+        },
+      },
     });
   }
 
@@ -33,6 +38,7 @@ export class DistributionListRepository {
           deletedAt: new Date(),
         },
         where: {
+          deletedAt: null,
           distributionListId,
           clientId: { notIn: data },
         },
@@ -42,13 +48,14 @@ export class DistributionListRepository {
         where: {
           distributionListId,
           clientId: { in: data },
+          deletedAt: null,
         },
       });
 
       const clientsToCreate = data.filter((clientId) => {
-        const alreadyExists = clientList.filter((client) => {
+        const alreadyExists = !!clientList.filter((client) => {
           return client.clientId === clientId;
-        });
+        }).length;
         return !alreadyExists;
       });
 
