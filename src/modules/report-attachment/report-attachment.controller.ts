@@ -1,36 +1,43 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Controller, Get, StreamableFile } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+  StreamableFile,
+} from '@nestjs/common';
 
 import {} from './report-attachment.dto';
-import * as fs from 'fs';
-import { join } from 'path';
-import { PdfGenerationService } from 'src/services/pdf-generator.service';
+import { DistributionListRepository } from '../distribuition-list/distribution-list.repository';
+import { ReportRepository } from './report-attachment.repository';
+import { PdfGenerationService } from './pdf-generator.service';
 
-@Controller('report-attachments')
+@Controller('reports')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class ReportAttachmentController {
-  constructor(private readonly pdfService: PdfGenerationService) {}
+  constructor(
+    private readonly pdfService: PdfGenerationService,
+    private readonly reportRepository: ReportRepository,
+    private readonly distrpibutiionListService: DistributionListRepository,
+  ) {}
 
-  @Get('test')
-  async getReportTest(): Promise<StreamableFile> {
-    return this.getFile({ fileName: 'document.pdf' });
-  }
-
-  async getFile(document: Document): Promise<StreamableFile> {
-    await this.pdfService.generate();
-    const filename = document.fileName;
-    const filepath = join(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'util',
-      'pdfs',
-      filename,
+  @Get('test/distribution-list/:distributionListId')
+  async getReportTest(
+    @Param() { distributionListId }: { distributionListId: string },
+    @Query('date') date: string,
+  ): Promise<StreamableFile> {
+    const list = await this.distrpibutiionListService.findById(
+      distributionListId,
     );
-    const file = fs.createReadStream(join(filepath));
-    return new StreamableFile(file);
+    if (!list) throw new BadRequestException(`List Not Found`);
+    if (!list.distributionClientsList.length)
+      throw new BadRequestException(`No Clients On List Not Found`);
+
+    const clients = list.distributionClientsList.map((l) => l.client);
+    const newJob = await this.reportRepository.createPdfJob(distributionListId);
+
+    return this.pdfService.zipPdfs({ clients, date });
   }
 }
 

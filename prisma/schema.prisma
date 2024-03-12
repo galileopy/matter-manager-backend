@@ -162,6 +162,8 @@ model DistributionList {
   deletedAt        DateTime?
   
   distributionClientsList DistributionListClient[]
+  pdfJobs PdfJob[]
+
 }
 
 model DistributionListClient {
@@ -176,4 +178,17 @@ model DistributionListClient {
 
   distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
   distributionListId         String             @db.Uuid
+}
+
+model PdfJob {
+  id  String       @id                @db.Uuid @default(dbgenerated("uuid_generate_v1()"))
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
+  distributionListId         String             @db.Uuid
+
+  generatedAt        DateTime?
+  generationError    String?
+
 }

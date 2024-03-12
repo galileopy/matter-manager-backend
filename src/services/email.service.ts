@@ -23,8 +23,6 @@ export class EmailService {
       console.log('ERROR', e);
       throw transformPrismaError(e);
     }
-
-    // console.log('Message sent: %s', info.messageId);
   }
 
   async getTransporter() {

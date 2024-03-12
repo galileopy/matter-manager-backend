@@ -17,6 +17,18 @@ export class DistributionListRepository {
     });
   }
 
+  findById(id: string) {
+    return this.prismaClient.distributionList.findUnique({
+      where: { deletedAt: null, id },
+      include: {
+        distributionClientsList: {
+          include: { client: true },
+          where: { deletedAt: null },
+        },
+      },
+    });
+  }
+
   create(data: Prisma.DistributionListCreateInput): Promise<DistributionList> {
     return this.prismaClient.distributionList.create({ data });
   }
