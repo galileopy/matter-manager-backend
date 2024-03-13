@@ -28,3 +28,11 @@ export class DeleteDistributionListDto {
   @IsUUID()
   distributionListId: string;
 }
+
+export class CreateJobDto {
+  @IsString()
+  date: string;
+
+  @IsArray()
+  statusIds: string[];
+}

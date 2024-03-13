@@ -188,7 +188,6 @@ model PdfJob {
   distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
   distributionListId         String             @db.Uuid
 
-  generatedAt        DateTime?
-  generationError    String?
-
+  date              String            @default("hello world")
+  statusIds         String[]
 }
