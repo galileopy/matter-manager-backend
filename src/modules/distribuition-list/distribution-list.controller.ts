@@ -107,6 +107,14 @@ export class DistributionListController {
     let job;
     let matterAmounts = [];
 
+    const d = new Date(data.date);
+
+    const year = d.getFullYear();
+    const month = (1 + d.getMonth()).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+
+    const formattedDate = `${month}/${day}/${year}`;
+
     try {
       const list = await this.distributionListRepository.findById(
         distributionListId,
@@ -128,6 +136,7 @@ export class DistributionListController {
 
       job = await this.pdfJobRepostory.createPdfJob({
         ...data,
+        date: formattedDate,
         distributionList: { connect: { id: distributionListId } },
       });
     } catch (e) {
