@@ -34,6 +34,22 @@ export class MatterRepository {
     });
   }
 
+  findAllByClientIdAndStatusIds(
+    clientId: string,
+    statusIds: string[],
+  ): Promise<(Matter & { status: MatterStatus })[]> {
+    return this.prismaClient.matter.findMany({
+      where: {
+        deletedAt: null,
+        statusId: { in: statusIds },
+        clientId,
+      },
+      include: {
+        status: true,
+      },
+    });
+  }
+
   create(
     matterData: Prisma.MatterCreateInput,
   ): Promise<Matter & { status: MatterStatus; client: Client }> {

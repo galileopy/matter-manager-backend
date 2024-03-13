@@ -4,9 +4,10 @@ import { DistributionListRepository } from './distribution-list.repository';
 import { PrismaClient } from '@prisma/client';
 import { ServicesModule } from 'src/services/services.module';
 import { ReportAttachmentModule } from '../report-attachment/report-attachment.module';
+import { MatterModule } from '../matters/matters.module';
 
 @Module({
-  imports: [ServicesModule, ReportAttachmentModule],
+  imports: [ServicesModule, ReportAttachmentModule, MatterModule],
   controllers: [DistributionListController],
   providers: [DistributionListRepository, PrismaClient],
   exports: [DistributionListRepository],

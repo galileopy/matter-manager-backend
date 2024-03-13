@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -21,6 +22,7 @@ import {
 import { transformPrismaError } from 'util/transformers';
 import { DistributionListRepository } from './distribution-list.repository';
 import { ReportRepository } from '../report-attachment/report-attachment.repository';
+import { MatterRepository } from '../matters/matters.repository';
 
 @Controller('distribution-lists')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,6 +30,7 @@ export class DistributionListController {
   constructor(
     private readonly distributionListRepository: DistributionListRepository,
     private readonly pdfJobRepostory: ReportRepository,
+    private readonly matterRepository: MatterRepository,
   ) {}
 
   @Get()
@@ -102,8 +105,27 @@ export class DistributionListController {
     data: CreateJobDto,
   ): Promise<{ jobId: string; noMatterClients: string[] }> {
     let job;
+    let matterAmounts = [];
 
     try {
+      const list = await this.distributionListRepository.findById(
+        distributionListId,
+      );
+
+      if (!list) throw new BadRequestException('Could not find list');
+
+      matterAmounts = await Promise.all(
+        list.distributionClientsList.map(async (clientList) => {
+          const matters =
+            await this.matterRepository.findAllByClientIdAndStatusIds(
+              clientList.client.id,
+              data.statusIds,
+            );
+
+          return { name: clientList.client.name, matterAmount: matters.length };
+        }),
+      );
+
       job = await this.pdfJobRepostory.createPdfJob({
         ...data,
         distributionList: { connect: { id: distributionListId } },
@@ -111,6 +133,14 @@ export class DistributionListController {
     } catch (e) {
       throw transformPrismaError(e);
     }
-    return { jobId: job.id, noMatterClients: [] };
+
+    const noMatterClients = matterAmounts.reduce((cur, val) => {
+      if (!val.matterAmount) {
+        cur.push(val.name);
+      }
+      return cur;
+    }, []);
+
+    return { jobId: job.id, noMatterClients };
   }
 }
