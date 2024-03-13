@@ -1,10 +1,9 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
 import { Client, Matter, MatterStatus } from '@prisma/client';
-import { join } from 'path';
 import puppeteer from 'puppeteer';
-import * as fs from 'fs';
 import { MatterRepository } from 'src/modules/matters/matters.repository';
 import { CommentsRepository } from '../comments/comments.repository';
+import * as JSZip from 'jszip';
 
 @Injectable()
 export class PdfGenerationService {
@@ -14,10 +13,18 @@ export class PdfGenerationService {
   ) {}
 
   async zipPdfs({ clients, date }: ZipPdfData): Promise<StreamableFile> {
-    return this.generate({ client: clients[0], date });
+    const zip = new JSZip();
+
+    for (const client of clients) {
+      const pdfBytes = await this.generate({ client, date });
+      zip.file(`${client.name}_${date}.pdf`, pdfBytes);
+    }
+
+    const zipUint8Array = await zip.generateAsync({ type: 'uint8array' });
+    return new StreamableFile(zipUint8Array);
   }
 
-  async generate({ client, date }: GeneratePdfData): Promise<StreamableFile> {
+  async generate({ client, date }: GeneratePdfData): Promise<Buffer> {
     const matters = await this.matterRepository.findAllByClientId(client.id);
     const browser = await puppeteer.launch();
 
@@ -46,10 +53,10 @@ export class PdfGenerationService {
 
     // Generate PDF
     const pdfBuffer = await page.pdf({
-      format: 'A4', // specify the format
+      width: 1200,
       printBackground: true, // include background colors and images
     });
-    return new StreamableFile(pdfBuffer);
+    return pdfBuffer;
   }
 
   async createHtml({
@@ -62,7 +69,7 @@ export class PdfGenerationService {
         const comment = await this.commentRepository.findByMatterId(matter.id);
         return `<tr>
           <td>${matter.project}</td>
-          <td>${matter.fileNumber}</td>
+          <td style="min-width: 100px;">${matter.fileNumber}</td>
           <td>${comment?.comment || 'n/a'}</td>
           <td>${matter.status.status}</td>
         </tr>`;
@@ -73,6 +80,7 @@ export class PdfGenerationService {
       <style>
         td {
             border-bottom: 1px solid #ddd;
+            padding: 5px;
         }
       </style>
       <div style="width: 100%; text-align: center; padding-top: 40px;">
