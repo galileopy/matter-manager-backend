@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { PdfJob, Prisma, PrismaClient } from '@prisma/client';
+import {
+  Client,
+  DistributionList,
+  DistributionListClient,
+  PdfJob,
+  Prisma,
+  PrismaClient,
+} from '@prisma/client';
 
 @Injectable()
 export class ReportRepository {
@@ -8,6 +15,29 @@ export class ReportRepository {
   createPdfJob(data: Prisma.PdfJobCreateInput): Promise<PdfJob> {
     return this.prismaClient.pdfJob.create({
       data,
+    });
+  }
+
+  updateEmailTemplate(jobId: string, emailTemplateId: string): Promise<PdfJob> {
+    return this.prismaClient.pdfJob.update({
+      data: { emailTemplateId },
+      where: { id: jobId },
+    });
+  }
+
+  getJob(jobId: string) {
+    return this.prismaClient.pdfJob.findUnique({
+      where: { id: jobId },
+      include: {
+        distributionList: {
+          include: {
+            distributionClientsList: {
+              include: { client: true },
+              where: { deletedAt: null },
+            },
+          },
+        },
+      },
     });
   }
 }

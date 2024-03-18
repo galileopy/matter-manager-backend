@@ -1,4 +1,4 @@
-import { IsArray, IsString, IsUUID } from 'class-validator';
+import { ArrayMinSize, IsArray, IsString, IsUUID } from 'class-validator';
 
 export class CreateDistributionListDto {
   @IsString()
@@ -34,5 +34,6 @@ export class CreateJobDto {
   date: string;
 
   @IsArray()
+  @ArrayMinSize(1)
   statusIds: string[];
 }

@@ -1,17 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
+  Put,
   Query,
   StreamableFile,
+  ValidationPipe,
 } from '@nestjs/common';
 
-import {} from './report-attachment.dto';
-import { DistributionListRepository } from '../distribuition-list/distribution-list.repository';
+import { UpdateEmailTemplateDto } from './report-attachment.dto';
 import { ReportRepository } from './report-attachment.repository';
 import { PdfGenerationService } from './pdf-generator.service';
+import { transformPrismaError } from 'util/transformers';
 
 @Controller('reports')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,23 +24,35 @@ export class ReportAttachmentController {
     private readonly reportRepository: ReportRepository,
   ) {}
 
-  // @Get('test/distribution-list/:distributionListId')
-  // async getReportTest(
-  //   @Param() { distributionListId }: { distributionListId: string },
-  //   @Query('date') date: string,
-  // ): Promise<StreamableFile> {
-  //   const list = await this.distrpibutiionListService.findById(
-  //     distributionListId,
-  //   );
-  //   if (!list) throw new BadRequestException(`List Not Found`);
-  //   if (!list.distributionClientsList.length)
-  //     throw new BadRequestException(`No Clients On List Not Found`);
+  @Get('/job/:jobId/sample')
+  async getReportTest(
+    @Param() { jobId }: { jobId: string },
+  ): Promise<StreamableFile> {
+    const job = await this.reportRepository.getJob(jobId);
+    if (!job) throw new BadRequestException(`List Not Found`);
 
-  //   const clients = list.distributionClientsList.map((l) => l.client);
-  //   const newJob = await this.reportRepository.createPdfJob(distributionListId);
+    const list = job.distributionList;
+    if (!list.distributionClientsList.length)
+      throw new BadRequestException(`No Clients On List Not Found`);
+    const clients = list.distributionClientsList.map((l) => l.client);
+    return this.pdfService.zipPdfs({ clients, date: job.date });
+  }
 
-  //   return this.pdfService.zipPdfs({ clients, date });
-  // }
+  @Put('/job/:jobId/emailTemplate')
+  async updateTemplate(
+    @Body(new ValidationPipe({ whitelist: true }))
+    updateData: UpdateEmailTemplateDto,
+    @Param() { jobId }: { jobId: string },
+  ): Promise<void> {
+    try {
+      await this.reportRepository.updateEmailTemplate(
+        jobId,
+        updateData.emailTemplateId,
+      );
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
 }
 
 export type Document = {

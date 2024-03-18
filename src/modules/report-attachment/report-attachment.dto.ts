@@ -1,29 +1,7 @@
-import { ClientType } from '@prisma/client';
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
-export class Example {
+export class UpdateEmailTemplateDto {
   @IsString()
-  @MinLength(1)
-  name: string;
-
-  @IsString()
-  @IsOptional()
-  @MinLength(1)
-  suffix: string;
-
-  @IsString()
-  @IsOptional()
-  @MinLength(1)
-  @IsEmail()
-  email: string;
-
-  @IsEnum(ClientType)
-  @MinLength(1)
-  type: ClientType;
+  @IsUUID()
+  emailTemplateId: string;
 }
