@@ -25,6 +25,32 @@ export class EmailService {
     }
   }
 
+  async sendWithPdf(data: SendWithPdf) {
+    console.log(data);
+
+    const transporter = await this.getTransporter();
+
+    try {
+      await transporter.sendMail({
+        from: data.from,
+        to: data.to,
+        cc: data.cc,
+        subject: data.subject,
+        html: data.html,
+        attachments: [
+          {
+            // utf-8 string as an attachment
+            filename: 'general_matter_report.pdf',
+            content: data.attachment,
+          },
+        ],
+      });
+    } catch (e) {
+      console.log('ERROR', e);
+      throw transformPrismaError(e);
+    }
+  }
+
   async getTransporter() {
     const options = await this.prismaClient.smtpConfig.findFirst();
     return mailer.createTransport({
@@ -51,4 +77,13 @@ export interface SendTestData {
   from: string;
   to: string;
   cc: string;
+}
+
+export interface SendWithPdf {
+  from: string;
+  to: string[];
+  cc: string;
+  html: string;
+  attachment: Buffer;
+  subject: string;
 }

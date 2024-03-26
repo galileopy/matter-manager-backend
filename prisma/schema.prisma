@@ -190,7 +190,7 @@ model PdfJob {
   distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
   distributionListId         String             @db.Uuid
 
-  emailtTemplate             EmailTemplate?             @relation(fields: [emailTemplateId], references: [id])
+  emailTemplate             EmailTemplate?             @relation(fields: [emailTemplateId], references: [id])
   emailTemplateId            String?                    @db.Uuid
 
   date              String            @default("hello world")

@@ -6,11 +6,17 @@ import { ServicesModule } from 'src/services/services.module';
 import { PdfGenerationService } from './pdf-generator.service';
 import { MatterModule } from '../matters/matters.module';
 import { CommentsModule } from '../comments/comments.module';
+import { EmailOptionsRepostory } from '../admin-options/email-options.repository';
 
 @Module({
   imports: [ServicesModule, MatterModule, CommentsModule],
   controllers: [ReportAttachmentController],
-  providers: [ReportRepository, PdfGenerationService, PrismaClient],
+  providers: [
+    ReportRepository,
+    PdfGenerationService,
+    PrismaClient,
+    EmailOptionsRepostory,
+  ],
   exports: [ReportRepository, PdfGenerationService],
 })
 export class ReportAttachmentModule {}

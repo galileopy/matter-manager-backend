@@ -29,6 +29,7 @@ export class ReportRepository {
     return this.prismaClient.pdfJob.findUnique({
       where: { id: jobId },
       include: {
+        emailTemplate: true,
         distributionList: {
           include: {
             distributionClientsList: {
