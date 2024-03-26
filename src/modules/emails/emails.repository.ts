@@ -11,6 +11,12 @@ export class EmailRepository {
     });
   }
 
+  findSendableByClientId(clientId: string): Promise<EmailAddress[]> {
+    return this.prismaClient.emailAddress.findMany({
+      where: { clientId, deletedAt: null, shouldSendReport: true },
+    });
+  }
+
   create(emailData: Prisma.EmailAddressCreateInput): Promise<EmailAddress> {
     return this.prismaClient.emailAddress.create({ data: emailData });
   }

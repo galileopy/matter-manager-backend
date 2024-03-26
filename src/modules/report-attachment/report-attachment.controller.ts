@@ -17,6 +17,7 @@ import { PdfGenerationService } from './pdf-generator.service';
 import { transformPrismaError } from 'util/transformers';
 import { EmailService } from 'src/services/email.service';
 import { EmailOptionsRepostory } from '../admin-options/email-options.repository';
+import { EmailRepository } from '../emails/emails.repository';
 
 @Controller('jobs')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,6 +27,7 @@ export class ReportAttachmentController {
     private readonly reportRepository: ReportRepository,
     private readonly emailService: EmailService,
     private readonly smtpSettings: EmailOptionsRepostory,
+    private readonly emailRepository: EmailRepository,
   ) {}
 
   @Get('/:jobId/sample')
@@ -70,12 +72,18 @@ export class ReportAttachmentController {
 
     if (!template) throw new Error('template has not been assigned');
 
+    const testEmail = smtpSettings.testEmail;
+
     try {
       for (const client of job.distributionList.distributionClientsList) {
         const attachment = await this.pdfService.generate({
           client: client.client,
           date: job.date,
         });
+
+        const emails = (
+          await this.emailRepository.findSendableByClientId(client.client.id)
+        ).map((email) => email.email);
 
         const prefix = template.subjectPreText
           ? `${template.subjectPreText} `
@@ -89,7 +97,7 @@ export class ReportAttachmentController {
 
         await this.emailService.sendWithPdf({
           from: smtpSettings.user,
-          to: ['drew.ansbacher@gmail.com'],
+          to: testEmail ? [testEmail] : emails,
           cc: 'drew.ansbacher@gmail.com',
           html: template.body,
           attachment,

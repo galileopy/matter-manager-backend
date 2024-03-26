@@ -137,6 +137,8 @@ model SmtpConfig {
   service           String
   user              String
   pass              String
+
+  testEmail         String?
 }
 
 model EmailTemplate {

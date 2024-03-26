@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEmail,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
@@ -60,6 +61,10 @@ export class UpdateEmailOptionsDto {
 
   @IsString()
   pass: string;
+
+  @IsEmail()
+  @IsOptional()
+  testEmail: string;
 }
 
 export class SendTestEmailDto {

@@ -7,6 +7,7 @@ import { PdfGenerationService } from './pdf-generator.service';
 import { MatterModule } from '../matters/matters.module';
 import { CommentsModule } from '../comments/comments.module';
 import { EmailOptionsRepostory } from '../admin-options/email-options.repository';
+import { EmailRepository } from '../emails/emails.repository';
 
 @Module({
   imports: [ServicesModule, MatterModule, CommentsModule],
@@ -16,6 +17,7 @@ import { EmailOptionsRepostory } from '../admin-options/email-options.repository
     PdfGenerationService,
     PrismaClient,
     EmailOptionsRepostory,
+    EmailRepository,
   ],
   exports: [ReportRepository, PdfGenerationService],
 })
