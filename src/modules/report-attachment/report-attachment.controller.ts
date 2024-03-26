@@ -77,15 +77,23 @@ export class ReportAttachmentController {
           date: job.date,
         });
 
+        const prefix = template.subjectPreText
+          ? `${template.subjectPreText} `
+          : '';
+
+        const clientText = template.includeClientName ? client.client.name : '';
+
+        const postfix = template.subjectPostText
+          ? ` ${template.subjectPostText}`
+          : '';
+
         await this.emailService.sendWithPdf({
           from: smtpSettings.user,
           to: ['drew.ansbacher@gmail.com'],
           cc: 'drew.ansbacher@gmail.com',
           html: template.body,
           attachment,
-          subject: `${template.subjectPreText}${
-            template.includeClientName ? ` ${client.client.name} ` : ''
-          }${template.subjectPostText}`,
+          subject: `${prefix}${clientText}${postfix}`,
         });
       }
     } catch (e) {
