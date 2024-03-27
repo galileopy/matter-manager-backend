@@ -155,7 +155,7 @@ export class DistributionListController {
     return { jobId: job.id, noMatterClients };
   }
 
-  @Post('/:distributionListId/no-report-email')
+  @Post('/:distributionListId/no-report-job')
   async createNoReportJob(
     @Param() { distributionListId }: { distributionListId: string },
     @Body(new ValidationPipe({ whitelist: true }))
