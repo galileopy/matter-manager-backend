@@ -195,6 +195,13 @@ model PdfJob {
   emailTemplate             EmailTemplate?             @relation(fields: [emailTemplateId], references: [id])
   emailTemplateId            String?                    @db.Uuid
 
-  date              String            @default("hello world")
+  type                   JobType                     @default(NO_REPORT_EMAIL)
+
+  date              String?            @default("hello world")
   statusIds         String[]
+}
+
+enum JobType {
+  REPORT_EMAIL
+  NO_REPORT_EMAIL
 }

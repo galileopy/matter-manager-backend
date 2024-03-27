@@ -37,3 +37,8 @@ export class CreateJobDto {
   @ArrayMinSize(1)
   statusIds: string[];
 }
+export class CreateEmailJobDto {
+  @IsString()
+  @IsUUID()
+  emailTemplateId: string;
+}

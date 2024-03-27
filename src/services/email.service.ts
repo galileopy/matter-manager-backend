@@ -25,7 +25,7 @@ export class EmailService {
     }
   }
 
-  async sendWithPdf(data: SendWithPdf) {
+  async send(data: SendEmail) {
     console.log(data);
 
     const transporter = await this.getTransporter();
@@ -37,13 +37,15 @@ export class EmailService {
         cc: data.cc,
         subject: data.subject,
         html: data.html,
-        attachments: [
-          {
-            // utf-8 string as an attachment
-            filename: 'general_matter_report.pdf',
-            content: data.attachment,
-          },
-        ],
+        attachments: data.attachment
+          ? [
+              {
+                // utf-8 string as an attachment
+                filename: 'general_matter_report.pdf',
+                content: data.attachment,
+              },
+            ]
+          : undefined,
       });
     } catch (e) {
       console.log('ERROR', e);
@@ -79,11 +81,11 @@ export interface SendTestData {
   cc: string;
 }
 
-export interface SendWithPdf {
+export interface SendEmail {
   from: string;
   to: string[];
   cc: string;
   html: string;
-  attachment: Buffer;
+  attachment?: Buffer;
   subject: string;
 }

@@ -11,9 +11,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { DistributionList } from '@prisma/client';
+import { DistributionList, JobType } from '@prisma/client';
 import {
   CreateDistributionListDto,
+  CreateEmailJobDto,
   CreateJobDto,
   DeleteDistributionListDto,
   UpdateClientListDto,
@@ -98,7 +99,7 @@ export class DistributionListController {
     }
   }
 
-  @Post('/:distributionListId/job')
+  @Post('/:distributionListId/report-job')
   async createJob(
     @Param() { distributionListId }: { distributionListId: string },
     @Body(new ValidationPipe({ whitelist: true }))
@@ -136,6 +137,7 @@ export class DistributionListController {
 
       job = await this.pdfJobRepostory.createPdfJob({
         ...data,
+        type: JobType.REPORT_EMAIL,
         date: formattedDate,
         distributionList: { connect: { id: distributionListId } },
       });
@@ -151,5 +153,25 @@ export class DistributionListController {
     }, []);
 
     return { jobId: job.id, noMatterClients };
+  }
+
+  @Post('/:distributionListId/no-report-email')
+  async createNoReportJob(
+    @Param() { distributionListId }: { distributionListId: string },
+    @Body(new ValidationPipe({ whitelist: true }))
+    data: CreateEmailJobDto,
+  ): Promise<{ jobId: string }> {
+    let job;
+
+    try {
+      job = await this.pdfJobRepostory.createPdfJob({
+        distributionList: { connect: { id: distributionListId } },
+        emailTemplate: { connect: { id: data.emailTemplateId } },
+      });
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+
+    return { jobId: job.id };
   }
 }

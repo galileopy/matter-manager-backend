@@ -18,6 +18,14 @@ import { transformPrismaError } from 'util/transformers';
 import { EmailService } from 'src/services/email.service';
 import { EmailOptionsRepostory } from '../admin-options/email-options.repository';
 import { EmailRepository } from '../emails/emails.repository';
+import {
+  Client,
+  DistributionList,
+  DistributionListClient,
+  EmailTemplate,
+  JobType,
+  PdfJob,
+} from '@prisma/client';
 
 @Controller('jobs')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -62,12 +70,28 @@ export class ReportAttachmentController {
 
   @Post('/:jobId/sendPdfReport')
   async send(@Param() { jobId }: { jobId: string }): Promise<void> {
+    const job = await this.reportRepository.getJob(jobId);
+    if (!job) throw new Error('job not found');
+
+    if (job.type === JobType.REPORT_EMAIL) {
+      await this.sendReport(job);
+    } else if (job.type === JobType.NO_REPORT_EMAIL) {
+    }
+  }
+
+  async sendReport(
+    job: PdfJob & {
+      emailTemplate: EmailTemplate;
+      distributionList: DistributionList & {
+        distributionClientsList: (DistributionListClient & {
+          client: Client;
+        })[];
+      };
+    },
+  ): Promise<void> {
     const smtpSettings = await this.smtpSettings.find();
     if (!smtpSettings || !smtpSettings.user) throw new Error('No Smtp User');
 
-    const job = await this.reportRepository.getJob(jobId);
-
-    if (!job) throw new Error('job not found');
     const template = job.emailTemplate;
 
     if (!template) throw new Error('template has not been assigned');
@@ -85,28 +109,68 @@ export class ReportAttachmentController {
           await this.emailRepository.findSendableByClientId(client.client.id)
         ).map((email) => email.email);
 
-        const prefix = template.subjectPreText
-          ? `${template.subjectPreText} `
-          : '';
-
-        const clientText = template.includeClientName ? client.client.name : '';
-
-        const postfix = template.subjectPostText
-          ? ` ${template.subjectPostText}`
-          : '';
-
-        await this.emailService.sendWithPdf({
+        await this.emailService.send({
           from: smtpSettings.user,
           to: testEmail ? [testEmail] : emails,
           cc: 'drew.ansbacher@gmail.com',
           html: template.body,
           attachment,
-          subject: `${prefix}${clientText}${postfix}`,
+          subject: this.getSubject(template, client.client),
         });
       }
     } catch (e) {
       throw transformPrismaError(e);
     }
+  }
+
+  async sendEmailOnly(
+    job: PdfJob & {
+      emailTemplate: EmailTemplate;
+      distributionList: DistributionList & {
+        distributionClientsList: (DistributionListClient & {
+          client: Client;
+        })[];
+      };
+    },
+  ): Promise<void> {
+    const smtpSettings = await this.smtpSettings.find();
+    if (!smtpSettings || !smtpSettings.user) throw new Error('No Smtp User');
+
+    const template = job.emailTemplate;
+
+    if (!template) throw new Error('template has not been assigned');
+
+    const testEmail = smtpSettings.testEmail;
+
+    try {
+      for (const client of job.distributionList.distributionClientsList) {
+        const emails = (
+          await this.emailRepository.findSendableByClientId(client.client.id)
+        ).map((email) => email.email);
+
+        await this.emailService.send({
+          from: smtpSettings.user,
+          to: testEmail ? [testEmail] : emails,
+          cc: 'drew.ansbacher@gmail.com',
+          html: template.body,
+          subject: this.getSubject(template, client.client),
+        });
+      }
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
+
+  getSubject(template: EmailTemplate, client: Client): string {
+    const prefix = template.subjectPreText ? `${template.subjectPreText} ` : '';
+
+    const clientText = template.includeClientName ? client.name : '';
+
+    const postfix = template.subjectPostText
+      ? ` ${template.subjectPostText}`
+      : '';
+
+    return `${prefix}${clientText}${postfix}`;
   }
 }
 

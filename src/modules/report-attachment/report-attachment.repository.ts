@@ -1,12 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Client,
-  DistributionList,
-  DistributionListClient,
-  PdfJob,
-  Prisma,
-  PrismaClient,
-} from '@prisma/client';
+import { PdfJob, Prisma, PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ReportRepository {
