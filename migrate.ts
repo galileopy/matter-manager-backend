@@ -158,8 +158,10 @@ async function runEtl(): Promise<void> {
         status: { connect: { id: statusIdMap[matter.statusid] } },
         project: matter.project,
         fileNumber: matter.fileNumber,
-        closedAt: matter.wasDeleted ? new Date() : undefined,
-        deletedAt: matter.dateClosed,
+        closedAt: matter.dateClosed,
+        deletedAt: matter.wasDeleted
+          ? new Date(matter.dateofLastActivity)
+          : undefined,
       },
     });
     matterIdMap[matter.mattersid] = newMatter.id;
