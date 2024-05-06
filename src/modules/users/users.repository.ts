@@ -32,4 +32,11 @@ export class UserRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  async reInstate(userId: string): Promise<User> {
+    return this.prismaClient.user.update({
+      where: { id: userId },
+      data: { deletedAt: null },
+    });
+  }
 }

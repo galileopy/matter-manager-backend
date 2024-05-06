@@ -85,4 +85,17 @@ export class MatterRepository {
       },
     });
   }
+
+  reInstate(
+    matterId: string,
+  ): Promise<Matter & { status: MatterStatus; client: Client }> {
+    return this.prismaClient.matter.update({
+      where: { id: matterId },
+      data: { deletedAt: null },
+      include: {
+        client: true,
+        status: true,
+      },
+    });
+  }
 }

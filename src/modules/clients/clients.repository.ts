@@ -44,4 +44,11 @@ export class ClientRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  reInstate(clientId: string): Promise<Client> {
+    return this.prismaClient.client.update({
+      where: { id: clientId },
+      data: { deletedAt: null },
+    });
+  }
 }

@@ -87,6 +87,18 @@ export class MatterController {
     }
   }
 
+  @Put('reinstate')
+  async reinstate(
+    @Body(new ValidationPipe({ whitelist: true }))
+    { matterId }: DeleteMatterDto,
+  ): Promise<void> {
+    try {
+      await this.matterRepository.reInstate(matterId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
+
   @Post(':matterId/assignment')
   async assignMatter(
     @Body(new ValidationPipe({ whitelist: true }))

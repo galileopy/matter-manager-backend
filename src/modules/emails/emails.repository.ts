@@ -37,4 +37,11 @@ export class EmailRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  reInstate(emailId: string): Promise<EmailAddress> {
+    return this.prismaClient.emailAddress.update({
+      where: { id: emailId },
+      data: { deletedAt: null },
+    });
+  }
 }

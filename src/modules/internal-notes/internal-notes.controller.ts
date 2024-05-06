@@ -86,4 +86,16 @@ export class InternalNotesController {
       throw transformPrismaError(e);
     }
   }
+
+  @Put('reinstate')
+  async reinstate(
+    @Body(new ValidationPipe({ whitelist: true }))
+    { internalNoteId }: DeleteInternalNoteDto,
+  ): Promise<void> {
+    try {
+      await this.internalNotesRepository.reInstate(internalNoteId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
 }

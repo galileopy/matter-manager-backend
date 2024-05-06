@@ -32,4 +32,11 @@ export class InternalNotesRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  reInstate(id: string): Promise<InternalNote> {
+    return this.prismaClient.internalNote.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+  }
 }

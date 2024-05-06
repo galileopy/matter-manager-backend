@@ -77,4 +77,16 @@ export class ClientController {
       throw transformPrismaError(e);
     }
   }
+
+  @Put('reinstate')
+  async reInstateClient(
+    @Body(new ValidationPipe({ whitelist: true }))
+    { clientId }: DeleteClientDto,
+  ): Promise<void> {
+    try {
+      await this.clientRepostiory.reInstate(clientId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
 }

@@ -99,6 +99,18 @@ export class DistributionListController {
     }
   }
 
+  @Put('reinstate')
+  async reInstate(
+    @Body(new ValidationPipe({ whitelist: true }))
+    { distributionListId }: DeleteDistributionListDto,
+  ): Promise<void> {
+    try {
+      await this.distributionListRepository.reInstate(distributionListId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
+
   @Post('/:distributionListId/report-job')
   async createJob(
     @Param() { distributionListId }: { distributionListId: string },

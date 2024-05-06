@@ -86,4 +86,11 @@ export class DistributionListRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  reInstate(distributionListId: string): Promise<DistributionList> {
+    return this.prismaClient.distributionList.update({
+      where: { id: distributionListId },
+      data: { deletedAt: null },
+    });
+  }
 }

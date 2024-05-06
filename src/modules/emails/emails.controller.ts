@@ -69,4 +69,15 @@ export class EmailController {
       throw transformPrismaError(e);
     }
   }
+
+  @Put('reinstate')
+  async reinstateEmail(
+    @Body(new ValidationPipe({ whitelist: true })) { emailId }: DeleteEmailDto,
+  ): Promise<void> {
+    try {
+      await this.emailRepository.reInstate(emailId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
 }

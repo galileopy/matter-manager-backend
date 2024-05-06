@@ -31,4 +31,11 @@ export class EmailTemplateRepository {
       data: { deletedAt: new Date() },
     });
   }
+
+  reInstate(templateId: string): Promise<EmailTemplate> {
+    return this.prismaClient.emailTemplate.update({
+      where: { id: templateId },
+      data: { deletedAt: null },
+    });
+  }
 }

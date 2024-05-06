@@ -64,4 +64,15 @@ export class UserController {
       throw transformPrismaError(e);
     }
   }
+
+  @Put('reinstate')
+  async reinstate(
+    @Body(new ValidationPipe({ whitelist: true })) { userId }: DeleteUserDto,
+  ): Promise<void> {
+    try {
+      await this.userRepository.reInstate(userId);
+    } catch (e) {
+      throw transformPrismaError(e);
+    }
+  }
 }
