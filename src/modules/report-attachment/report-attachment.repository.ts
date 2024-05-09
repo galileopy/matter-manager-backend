@@ -35,6 +35,14 @@ export class ReportRepository {
     });
   }
 
+  getHistory() {
+    return this.prismaClient.pdfJob.findMany({
+      include: { emailSends: true },
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   createEmailSend(jobId: string, clientId: string, error?: string) {
     return this.prismaClient.emailSend.create({
       data: {

@@ -52,6 +52,11 @@ export class ReportAttachmentController {
     return this.pdfService.zipPdfs({ clients, date: job.date });
   }
 
+  @Get('history')
+  async getHistory(): Promise<PdfJob[]> {
+    return this.reportRepository.getHistory();
+  }
+
   @Put('/:jobId/emailTemplate')
   async updateTemplate(
     @Body(new ValidationPipe({ whitelist: true }))
