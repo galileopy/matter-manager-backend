@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   ValidationPipe,
+  Request,
 } from '@nestjs/common';
 
 import { DistributionList, JobType } from '@prisma/client';
@@ -114,6 +115,7 @@ export class DistributionListController {
   @Post('/:distributionListId/report-job')
   async createJob(
     @Param() { distributionListId }: { distributionListId: string },
+    @Request() req: { user: { id: string } },
     @Body(new ValidationPipe({ whitelist: true }))
     data: CreateJobDto,
   ): Promise<{ jobId: string; noMatterClients: string[] }> {
@@ -152,6 +154,7 @@ export class DistributionListController {
         type: JobType.REPORT_EMAIL,
         date: formattedDate,
         distributionList: { connect: { id: distributionListId } },
+        user: { connect: { id: req['user'].id } },
       });
     } catch (e) {
       throw transformPrismaError(e);
@@ -170,6 +173,7 @@ export class DistributionListController {
   @Post('/:distributionListId/no-report-job')
   async createNoReportJob(
     @Param() { distributionListId }: { distributionListId: string },
+    @Request() req: { user: { id: string } },
     @Body(new ValidationPipe({ whitelist: true }))
     data: CreateEmailJobDto,
   ): Promise<{ jobId: string }> {
@@ -179,6 +183,7 @@ export class DistributionListController {
       job = await this.pdfJobRepostory.createPdfJob({
         distributionList: { connect: { id: distributionListId } },
         emailTemplate: { connect: { id: data.emailTemplateId } },
+        user: { connect: { id: req['user'].id } },
       });
     } catch (e) {
       throw transformPrismaError(e);

@@ -99,8 +99,8 @@ export class ReportAttachmentController {
 
     const testEmail = smtpSettings.testEmail;
 
-    try {
-      for (const client of job.distributionList.distributionClientsList) {
+    for (const client of job.distributionList.distributionClientsList) {
+      try {
         const attachment = await this.pdfService.generate({
           client: client.client,
           date: job.date,
@@ -118,9 +118,14 @@ export class ReportAttachmentController {
           attachment,
           subject: this.getSubject(template, client.client),
         });
+        await this.reportRepository.createEmailSend(job.id, client.clientId);
+      } catch (e) {
+        await this.reportRepository.createEmailSend(
+          job.id,
+          client.clientId,
+          e.message,
+        );
       }
-    } catch (e) {
-      throw transformPrismaError(e);
     }
   }
 
@@ -143,8 +148,8 @@ export class ReportAttachmentController {
 
     const testEmail = smtpSettings.testEmail;
 
-    try {
-      for (const client of job.distributionList.distributionClientsList) {
+    for (const client of job.distributionList.distributionClientsList) {
+      try {
         const emails = (
           await this.emailRepository.findSendableByClientId(client.client.id)
         ).map((email) => email.email);
@@ -156,9 +161,15 @@ export class ReportAttachmentController {
           html: template.body,
           subject: this.getSubject(template, client.client),
         });
+
+        await this.reportRepository.createEmailSend(job.id, client.clientId);
+      } catch (e: any) {
+        await this.reportRepository.createEmailSend(
+          job.id,
+          client.clientId,
+          e.message,
+        );
       }
-    } catch (e) {
-      throw transformPrismaError(e);
     }
   }
 

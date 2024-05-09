@@ -34,4 +34,14 @@ export class ReportRepository {
       },
     });
   }
+
+  createEmailSend(jobId: string, clientId: string, error?: string) {
+    return this.prismaClient.emailSend.create({
+      data: {
+        pdfJob: { connect: { id: jobId } },
+        client: { connect: { id: clientId } },
+        error,
+      },
+    });
+  }
 }
