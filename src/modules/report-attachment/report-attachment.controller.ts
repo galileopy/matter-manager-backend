@@ -74,7 +74,7 @@ export class ReportAttachmentController {
   }
 
   @Post('/:jobId/send')
-  async send(@Param() { jobId }: { jobId: string }): Promise<void> {
+  async send(@Param() { jobId }: { jobId: string }): Promise<PdfJob> {
     const job = await this.reportRepository.getJob(jobId);
     if (!job) throw new Error('job not found');
 
@@ -83,6 +83,8 @@ export class ReportAttachmentController {
     } else if (job.type === JobType.NO_REPORT_EMAIL) {
       await this.sendEmailOnly(job);
     }
+
+    return this.reportRepository.getJobWithSends(jobId);
   }
 
   async sendReport(

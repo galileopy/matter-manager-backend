@@ -26,8 +26,6 @@ export class EmailService {
   }
 
   async send(data: SendEmail) {
-    console.log(data);
-
     const transporter = await this.getTransporter();
 
     try {
@@ -49,7 +47,7 @@ export class EmailService {
       });
     } catch (e) {
       console.log('ERROR', e);
-      throw transformPrismaError(e);
+      throw e;
     }
   }
 

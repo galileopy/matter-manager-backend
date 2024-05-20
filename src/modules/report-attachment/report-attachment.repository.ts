@@ -37,9 +37,25 @@ export class ReportRepository {
 
   getHistory() {
     return this.prismaClient.pdfJob.findMany({
-      include: { emailSends: true },
+      include: {
+        emailSends: { include: { client: true } },
+        user: true,
+        distributionList: true,
+      },
+      where: { emailSends: { some: {} } },
       take: 10,
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  getJobWithSends(id: string) {
+    return this.prismaClient.pdfJob.findUnique({
+      include: {
+        emailSends: {
+          include: { client: true },
+        },
+      },
+      where: { id },
     });
   }
 
