@@ -82,7 +82,7 @@ export interface SendTestData {
 export interface SendEmail {
   from: string;
   to: string[];
-  cc: string;
+  cc?: string;
   html: string;
   attachment?: Buffer;
   subject: string;
