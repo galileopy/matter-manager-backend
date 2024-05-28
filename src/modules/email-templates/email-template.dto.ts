@@ -7,7 +7,7 @@ export class CreateEmailTemplateDto {
 
   @IsString()
   @IsOptional()
-  subjectPreText: string;
+  subjectPreText: string = null;
 
   @IsBoolean()
   @Transform(({ value }) => String(value) === 'true')
@@ -15,7 +15,7 @@ export class CreateEmailTemplateDto {
 
   @IsString()
   @IsOptional()
-  subjectPostText: string;
+  subjectPostText: string = null;
 }
 
 export class UpdateEmaiTemplatelDto {
@@ -28,7 +28,7 @@ export class UpdateEmaiTemplatelDto {
 
   @IsString()
   @IsOptional()
-  subjectPreText: string;
+  subjectPreText: string = null;
 
   @IsBoolean()
   @Transform(({ value }) => String(value) === 'true')
@@ -36,7 +36,7 @@ export class UpdateEmaiTemplatelDto {
 
   @IsString()
   @IsOptional()
-  subjectPostText: string;
+  subjectPostText: string = null;
 }
 
 export class UpdateEmaiTemplatelBodyDto {

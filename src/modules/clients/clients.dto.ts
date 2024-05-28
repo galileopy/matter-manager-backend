@@ -16,13 +16,13 @@ export class CreateClientDto {
   @IsString()
   @IsOptional()
   @MinLength(1)
-  suffix: string;
+  suffix: string = null;
 
   @IsString()
   @IsOptional()
   @MinLength(1)
   @IsEmail()
-  email: string;
+  email: string = null;
 
   @IsEnum(ClientType)
   @MinLength(1)
@@ -41,7 +41,7 @@ export class UpdateClientDto {
   @IsString()
   @IsOptional()
   @MinLength(1)
-  suffix: string;
+  suffix: string = null;
 
   @IsString()
   @IsOptional()

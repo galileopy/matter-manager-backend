@@ -26,7 +26,7 @@ export class CreateMatterDto {
 
   @IsDateString()
   @IsOptional()
-  closedAt: string;
+  closedAt: string = null;
 }
 
 export class UpdateMatterDto {
@@ -49,7 +49,7 @@ export class UpdateMatterDto {
 
   @IsDateString()
   @IsOptional()
-  closedAt: string;
+  closedAt: string = null;
 }
 
 export class DeleteMatterDto {
@@ -65,5 +65,5 @@ export class CreateAssignmentDto {
 
   @IsString()
   @IsOptional()
-  assignedBy?: string;
+  assignedBy?: string = null;
 }

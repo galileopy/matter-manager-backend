@@ -20,7 +20,7 @@ export class CreateUserDto {
   @IsOptional()
   @MinLength(1)
   @IsEmail()
-  email: string;
+  email: string = null;
 
   @IsEnum(Role)
   role: Role;
@@ -53,7 +53,7 @@ export class UpdateUserDto {
   @IsOptional()
   @MinLength(1)
   @IsEmail()
-  email: string;
+  email: string = null;
 
   @IsEnum(Role)
   @MinLength(1)

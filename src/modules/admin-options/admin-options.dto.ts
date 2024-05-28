@@ -64,7 +64,7 @@ export class UpdateEmailOptionsDto {
 
   @IsEmail()
   @IsOptional()
-  testEmail: string;
+  testEmail: string = null;
 }
 
 export class SendTestEmailDto {
