@@ -27,6 +27,17 @@ export class EmailService {
 
   async send(data: SendEmail) {
     const transporter = await this.getTransporter();
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+
+    const formattedDate = `${month}-${day}-${year}`;
+
+    const filename = `${data.clientName.replace(
+      ' ',
+      '_',
+    )}_${formattedDate}.pdf`;
 
     try {
       await transporter.sendMail({
@@ -39,7 +50,7 @@ export class EmailService {
           ? [
               {
                 // utf-8 string as an attachment
-                filename: 'general_matter_report.pdf',
+                filename,
                 content: data.attachment,
               },
             ]
@@ -86,4 +97,5 @@ export interface SendEmail {
   html: string;
   attachment?: Buffer;
   subject: string;
+  clientName: string;
 }

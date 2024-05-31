@@ -15,9 +15,18 @@ export class PdfGenerationService {
   async zipPdfs({ clients, date }: ZipPdfData): Promise<StreamableFile> {
     const zip = new JSZip();
 
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+
+    const formattedDate = `${month}-${day}-${year}`;
+
     for (const client of clients) {
+      const filename = `${client.name.replace(' ', '_')}_${formattedDate}.pdf`;
       const pdfBytes = await this.generate({ client, date });
-      zip.file(`${client.name}_${date}.pdf`, pdfBytes);
+
+      zip.file(filename, pdfBytes);
     }
 
     const zipUint8Array = await zip.generateAsync({ type: 'uint8array' });

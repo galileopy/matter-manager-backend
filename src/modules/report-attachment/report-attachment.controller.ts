@@ -123,6 +123,7 @@ export class ReportAttachmentController {
           html: template.body,
           attachment,
           subject: this.getSubject(template, client.client),
+          clientName: client.client.name,
         });
         await this.reportRepository.createEmailSend(job.id, client.clientId);
       } catch (e) {
@@ -165,6 +166,7 @@ export class ReportAttachmentController {
           to: testEmail ? [testEmail] : emails,
           html: template.body,
           subject: this.getSubject(template, client.client),
+          clientName: client.client.name,
         });
 
         await this.reportRepository.createEmailSend(job.id, client.clientId);
