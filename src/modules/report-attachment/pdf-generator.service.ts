@@ -85,36 +85,39 @@ export class PdfGenerationService {
       }),
     );
 
+    // Join matterRows with an empty string to avoid unintended commas
+    const tableRows = matterRows.join('');
+
     return `
       <style>
         td {
-            border-bottom: 1px solid #ddd;
-            padding: 5px;
+          border-bottom: 1px solid #ddd;
+          padding: 5px;
         }
       </style>
       <div style="width: 100%; text-align: center; padding-top: 40px;">
         <p>
-            <b>
-                Ansbacher Law
-                <br />
-                ${clientName}
-                <br />
-                ${date}
-            </b>
+          <b>
+            Ansbacher Law
+            <br />
+            ${clientName}
+            <br />
+            ${date}
+          </b>
         </p>
         <table style="width: 100%; padding: 0px 20px 0px 20px;">
-            <thead>
-              <tr style="text-align: left;">
-                <th>Project</th>
-                <th>File no.</th>
-                <th>Comments</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${matterRows.join()}
-            </tbody>
-          </table>
+          <thead>
+            <tr style="text-align: left;">
+              <th>Project</th>
+              <th>File no.</th>
+              <th>Comments</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
       </div>
     `;
   }
