@@ -11,6 +11,12 @@ export class EmailTemplateRepository {
     });
   }
 
+  findById(id): Promise<EmailTemplate> {
+    return this.prismaClient.emailTemplate.findUnique({
+      where: { id },
+    });
+  }
+
   create(data: Prisma.EmailTemplateCreateInput): Promise<EmailTemplate> {
     return this.prismaClient.emailTemplate.create({ data });
   }

@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   ValidationPipe,
@@ -29,6 +30,13 @@ export class EmailTemplateController {
   @Get()
   async getTemplates(): Promise<EmailTemplate[]> {
     return this.emailTemplateRepository.findAll();
+  }
+
+  @Get(':templateId')
+  async getTemplate(
+    @Param() params: { templateId: string },
+  ): Promise<EmailTemplate> {
+    return this.emailTemplateRepository.findById(params.templateId);
   }
 
   @Post()
