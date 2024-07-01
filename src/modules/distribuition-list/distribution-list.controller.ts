@@ -181,6 +181,7 @@ export class DistributionListController {
 
     try {
       job = await this.pdfJobRepostory.createPdfJob({
+        cc: data.cc,
         distributionList: { connect: { id: distributionListId } },
         emailTemplate: { connect: { id: data.emailTemplateId } },
         user: { connect: { id: req['user'].id } },
