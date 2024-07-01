@@ -190,6 +190,8 @@ model PdfJob {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
+  cc               String?
+
   distributionList           DistributionList             @relation(fields: [distributionListId], references: [id])
   distributionListId         String             @db.Uuid
 

@@ -1,4 +1,10 @@
-import { ArrayMinSize, IsArray, IsString, IsUUID } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateDistributionListDto {
   @IsString()
@@ -36,9 +42,17 @@ export class CreateJobDto {
   @IsArray()
   @ArrayMinSize(1)
   statusIds: string[];
+
+  @IsString()
+  @IsOptional()
+  cc: string;
 }
 export class CreateEmailJobDto {
   @IsString()
   @IsUUID()
   emailTemplateId: string;
+
+  @IsString()
+  @IsOptional()
+  cc: string;
 }

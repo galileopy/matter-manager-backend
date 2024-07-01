@@ -120,6 +120,7 @@ export class ReportAttachmentController {
         await this.emailService.send({
           from: smtpSettings.user,
           to: testEmail ? [testEmail] : emails,
+          cc: job.cc,
           html: template.body,
           attachment,
           subject: this.getSubject(template, client.client),
@@ -164,6 +165,7 @@ export class ReportAttachmentController {
         await this.emailService.send({
           from: smtpSettings.user,
           to: testEmail ? [testEmail] : emails,
+          cc: job.cc,
           html: template.body,
           subject: this.getSubject(template, client.client),
           clientName: client.client.name,
