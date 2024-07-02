@@ -20,6 +20,7 @@ async function runEtl(): Promise<void> {
   await client.connect();
 
   // -- DELETE ALL DATA --
+  await prisma.emailSend.deleteMany();
   await prisma.pdfJob.deleteMany();
   await prisma.distributionListClient.deleteMany();
   await prisma.distributionList.deleteMany();
