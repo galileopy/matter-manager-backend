@@ -18,12 +18,6 @@ export class CreateClientDto {
   @MinLength(1)
   suffix: string = null;
 
-  @IsString()
-  @IsOptional()
-  @MinLength(1)
-  @IsEmail()
-  email: string = null;
-
   @IsEnum(ClientType)
   @MinLength(1)
   type: ClientType;
