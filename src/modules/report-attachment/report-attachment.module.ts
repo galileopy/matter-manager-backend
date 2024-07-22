@@ -8,9 +8,10 @@ import { MatterModule } from '../matters/matters.module';
 import { CommentsModule } from '../comments/comments.module';
 import { EmailOptionsRepostory } from '../admin-options/email-options.repository';
 import { EmailRepository } from '../emails/emails.repository';
+import { PdfModule } from '../pdf/pdf.module';
 
 @Module({
-  imports: [ServicesModule, MatterModule, CommentsModule],
+  imports: [ServicesModule, MatterModule, CommentsModule, PdfModule],
   controllers: [ReportAttachmentController],
   providers: [
     ReportRepository,
