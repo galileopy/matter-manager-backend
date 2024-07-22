@@ -4,12 +4,14 @@ import puppeteer from 'puppeteer';
 import { MatterRepository } from 'src/modules/matters/matters.repository';
 import { CommentsRepository } from '../comments/comments.repository';
 import * as JSZip from 'jszip';
+import { PdfService } from '../pdf/pdf.service';
 
 @Injectable()
 export class PdfGenerationService {
   constructor(
     private readonly matterRepository: MatterRepository,
     private readonly commentRepository: CommentsRepository,
+    private readonly pdfService: PdfService,
   ) {}
 
   async zipPdfs({ clients, date }: ZipPdfData): Promise<StreamableFile> {
@@ -22,29 +24,30 @@ export class PdfGenerationService {
 
     const formattedDate = `${month}-${day}-${year}`;
 
+    console.log(`Zipping new file ${formattedDate}.zip`);
+
+    console.log(`Clients: ${clients.length}`);
+    console.time('Generating PDFs');
+    let current = 0;
     for (const client of clients) {
+      console.log(
+        `Generating PDF for ${client.name} (${++current}/${clients.length})`,
+      );
       const filename = `${client.name.replace(' ', '_')}_${formattedDate}.pdf`;
-      const pdfBytes = await this.generate({ client, date });
+      const pdfBytes = await this.generatePDF({ client, date });
 
       zip.file(filename, pdfBytes);
     }
 
     const zipUint8Array = await zip.generateAsync({ type: 'uint8array' });
+    console.timeEnd('Generating PDFs');
     return new StreamableFile(zipUint8Array);
   }
 
-  async generate({ client, date }: GeneratePdfData): Promise<Buffer> {
+  async generatePDF({ client, date }: GeneratePdfData): Promise<Buffer> {
     const matters = await this.matterRepository.findAllByClientId(client.id);
-    const browser = await puppeteer.launch();
-
-    // Open a new page
-    const page = await browser.newPage();
-
-    // Navigate to about:blank
-    await page.goto('about:blank');
 
     const d = new Date(date);
-
     const year = d.getFullYear();
     const month = (1 + d.getMonth()).toString().padStart(2, '0');
     const day = d.getDate().toString().padStart(2, '0');
@@ -56,15 +59,7 @@ export class PdfGenerationService {
     });
 
     // Add content to the page
-    await page.evaluate((html) => {
-      document.body.innerHTML = html;
-    }, html);
-
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      width: 1200,
-      printBackground: true, // include background colors and images
-    });
+    const pdfBuffer = await this.pdfService.htmlToPDFBuffer({ html });
     return pdfBuffer;
   }
 
