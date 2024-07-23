@@ -64,6 +64,7 @@ export class EmailService {
 
   async getTransporter() {
     const options = await this.prismaClient.smtpConfig.findFirst();
+
     return mailer.createTransport({
       pool: true,
       host: options.host,

@@ -108,7 +108,7 @@ export class ReportAttachmentController {
 
     for (const client of job.distributionList.distributionClientsList) {
       try {
-        const attachment = await this.pdfService.generate({
+        const attachment = await this.pdfService.generatePDF({
           client: client.client,
           date: job.date,
         });

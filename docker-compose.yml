@@ -1,0 +1,22 @@
+version: '3.3'
+services:
+  postgres:
+    image: postgres:16.3
+    environment:
+      POSTGRES_USER: 'marley_user'
+      POSTGRES_PASSWORD: 'marley_password'
+      POSTGRES_DB: 'marley_db'
+    ports:
+      - 5432:5432
+    volumes:
+      - data_backend_matter:/var/lib/postgresql/data
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: 'mailhog'
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+
+volumes:
+  data_backend_matter:
