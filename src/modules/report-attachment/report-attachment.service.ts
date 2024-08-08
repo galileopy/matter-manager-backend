@@ -84,11 +84,27 @@ export class ReportAttachmentService {
 
       try {
         const emails = (
-          await this.emailRepository.findSendableByClientId(client.id)
+          await this.emailRepository.findSendableByClientId(client.client.id)
         ).map((email) => email.email);
+
+        if (emails.length === 0) {
+          console.log(
+            `[${this.logContext}]: Sending emails for client ${client.client.name} SKIPPED. All emails addresses are unsubscribed`,
+          );
+
+          await this.reportRepository.updateEmailSend(
+            emailSend.id,
+            EmailSendStatus.FAILED,
+            'All emails addresses are unsubscribed',
+          );
+
+          continue;
+        }
+
         console.log(
           `[${this.logContext}]: Sending emails for client ${client.client.name} STARTED`,
         );
+
         await this.emailService.send({
           from: smtpSettings.user,
           to: testEmail ? [testEmail] : emails,
