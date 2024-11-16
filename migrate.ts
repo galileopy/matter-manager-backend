@@ -214,20 +214,7 @@ async function runEtl(): Promise<void> {
   }
 
   // Email Config
-  await prisma.smtpConfig.create({
-    data: {
-      host: 'smtp.office365.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      maxConnections: 30,
-      tlsRejectUnauthorized: false,
-      tlsCiphers: 'SSLv3',
-      service: 'Outlook365',
-      user: 'ansbachertest@heartutilities.com',
-      pass: 'T3st09Microsft*',
-    },
-  });
+  console.log('Migrations finsihed, please setup your smtp server')
 }
 
 runEtl().then((_) => process.exit());
